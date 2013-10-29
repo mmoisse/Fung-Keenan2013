@@ -17,7 +17,7 @@ Tak Fung^1,2 and Kevin Keenan^3
 </h6>
 
 ### Introduction
-This document describes the functionality of the Mathematica code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1]. This document describes four seperate programs named, `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiknown`. This document has also been reproduced for users of the statistical programming environment, `R`, where all code examples have been converted to `R` code. A copy of the `R` version of this document can be found at: https://github.com/kkeenan02/Fung&Keenan2013 in the R folder.
+This document describes the functionality of the Mathematica code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1]. This document describes four seperate programs named, `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiknown`. This document has also been reproduced for users of the statistical programming environment, `R`, where all code examples have been converted to `R` code. A copy of the `R` version of this document can be found at: https://github.com/kkeenan02/Fung-Keenan2013 in the R folder.
 
 #### `pmfSamplingDistYiN`
 This program returns $P(Y_{i,N} = y_{i,N})$ as specified by equation (9) in the main text, give $M$, $N$, $p_{i}$, $P_{ii}$ and $y_{i,n}$. Here, $Y_{i,N}$ is the random variable specifying the number of copies of allele $A_{i}$ in a sample of size $N$ taken from a finite diploid population of size $M$, with the frequency of allele $A_{i}$ in the population being $p_{i}$ and the frequency of homozygotes of allele $A_{i}$ in the population being $P_{ii}$.

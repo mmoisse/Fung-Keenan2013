@@ -3,3 +3,5 @@
 .RData
 Sampling_Probabilities_v4b.R
 *.Rproj
+*.R
+*.mat
