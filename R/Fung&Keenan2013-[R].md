@@ -2,7 +2,7 @@
 Fung & Keenan 2013: Description of R programs used to calculate  confidence intervals
 ========================================================
 
-Tak Fung^1,2 and Kevin Keenan^3
+Tak Fung<sup>1,2</sup> and Kevin Keenan<sup>3</sup>
 ----------------------------------------------------
 
 <h6>
@@ -240,7 +240,7 @@ system.time(res <- CIforpiCasePiiUnknown(100, 30, 5, 0.05))
 
 ```
    user  system elapsed 
-  53.16    0.00   53.31 
+  54.21    0.10   55.14 
 ```
 
 ```r
@@ -255,4 +255,5 @@ $piCI
 $PiiCI
 [1] 0.000 0.195
 ```
+
 
