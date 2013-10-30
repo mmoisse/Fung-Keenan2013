@@ -6,7 +6,6 @@ Tak Fung<sup>1,2</sup> and Kevin Keenan<sup>3</sup>
 ----------------------------------------------------
 
 <h6>
-https://github.com/kkeenan02/Fung-Keenan2013.git
 <sup>1</sup> National University of Singapore, Department of Biological Sciences, 14 Science Drive 4, Singapore 117543
 
 <sup>2</sup> Queens University Belfast, School of Biological Sciences, Belfast BT9 7BL, UK
