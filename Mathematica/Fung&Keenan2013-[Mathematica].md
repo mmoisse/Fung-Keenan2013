@@ -8,9 +8,9 @@ Tak Fung^1,2 and Kevin Keenan^3
 <h6>
 <sup>1</sup> National University of Singapore, Department of Biological Sciences, 14 Science Drive 4, Singapore 117543
 
-<sup>2</sup> Queen’s University Belfast, School of Biological Sciences, Belfast BT9 7BL, UK
+<sup>2</sup> Queens University Belfast, School of Biological Sciences, Belfast BT9 7BL, UK
 
-<sup>3</sup> Queen’s University Belfast, Institute for Global Food Security, School of Biological Sciences, Belfast BT9 7BL, UK
+<sup>3</sup> Queens University Belfast, Institute for Global Food Security, School of Biological Sciences, Belfast BT9 7BL, UK
 
 </center>
 </h6>
@@ -53,7 +53,7 @@ Module[{Maxfunc, Minfunc, Lowerbound, Upperbound, Numerator1, Summand, Prob, xii
     
   Numerator1 = 0.0;
     
-  For[xii = Lowerbound, xii ≤ Upperbound, xii++,
+  For[xii = Lowerbound, xii = Upperbound, xii++,
       
     Summand = Binomial[M*Pii, xii]*Binomial[2*M*(pi - Pii), yiN - (2*xii)]*Binomial[M + (M*Pii) -  
       (2*M*pi), NN + xii - yiN];
@@ -111,7 +111,7 @@ Module[{Sumprob, yiNlower, dummy1, Sumprob2, yiNupper, TestyiNobs, Output},
     
   dummy1 = 0.0;
     
-  While[Sumprob ≤ (alpha/2), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower]; 
+  While[Sumprob = (alpha/2), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower]; 
     Sumprob = Sumprob + dummy1; yiNlower = yiNlower + 1;];
 
  yiNlower = yiNlower - 1;
@@ -128,7 +128,7 @@ Module[{Sumprob, yiNlower, dummy1, Sumprob2, yiNupper, TestyiNobs, Output},
     
   yiNupper = 2*NN;
     
-  While[Sumprob2 ≥ (1 - (alpha/2)), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper]; 
+  While[Sumprob2 = (1 - (alpha/2)), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper]; 
     Sumprob2 = Sumprob2 - dummy1; yiNupper = yiNupper - 1;];
     
   yiNupper = yiNupper + 1;
@@ -141,7 +141,7 @@ Module[{Sumprob, yiNlower, dummy1, Sumprob2, yiNupper, TestyiNobs, Output},
     
   (* Test if yiNobs is in acceptance region *)
     
-  TestyiNobs = (yiNobs ≥ yiNlower) && (yiNobs ≤ yiNupper);
+  TestyiNobs = (yiNobs = yiNlower) && (yiNobs = yiNupper);
     
   Output = {yiNlower, yiNupper, TestyiNobs};
     
@@ -190,23 +190,23 @@ Module[{Output, pi0List, Pii0List, j, pi0, Pii0, k, Output1, Output2, piCIlowerl
 
   (* Loop over all possible values of pi, denoted by pi0 *)
     
-  For[j = 0, j ≤ (2*M), j++,
+  For[j = 0, j = (2*M), j++,
       
     pi0 = j/(2*M);
       
     (* Only go further if constraints on pi0 are met. *)
       
-    If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
+    If[(pi0 = (yiNobs/(2*M))) && (pi0 = (1 - (((2*NN) - yiNobs)/(2*M)))),
 
      (* Loop over all possible values of Pii, denoted by Pii0 *)
         
-      For[k = 0, k ≤ j, k++,
+      For[k = 0, k = j, k++,
           
         Pii0 = k/(2*M);
           
         (* Only go further if constraints on Pii0 are met. *)
           
-        If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0),
+        If[(Pii0 = Max[0, (2*pi0) - 1]) && (Pii0 = pi0),
             
           (* For given pi0 and Pii0, test if yiNobs is in acceptance region;
               
@@ -267,16 +267,16 @@ Module[{Output, pi0List, Pii0List, j, pi0, Pii0, k, Output1, Output2, piCIlowerl
       
     Outputcounter = 1;
       
-    For[j = 1, j ≤ (2*M), j++,
+    For[j = 1, j = (2*M), j++,
       pi0 = j/(2*M);
         
-      If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
+      If[(pi0 = (yiNobs/(2*M))) && (pi0 = (1 - (((2*NN) - yiNobs)/(2*M)))),
 
-       For[k = 0, k ≤ j, k++,
+       For[k = 0, k = j, k++,
 
          Pii0 = k/(2*M);
             
-          If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0),
+          If[(Pii0 = Max[0, (2*pi0) - 1]) && (Pii0 = pi0),
               
             (* Calculate alpha value needed to cover yiNobs.
            
@@ -287,7 +287,7 @@ Module[{Output, pi0List, Pii0List, j, pi0, Pii0, k, Output1, Output2, piCIlowerl
                 
               Sumprob = 0.0;
                 
-              For[m = 0, m ≤ (yiNobs - 1), m++,
+              For[m = 0, m = (yiNobs - 1), m++,
              
                      
                 Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
@@ -302,7 +302,7 @@ Module[{Output, pi0List, Pii0List, j, pi0, Pii0, k, Output1, Output2, piCIlowerl
 
              Sumprob2 = 0.0;
                 
-              For[m = (2*NN), m ≥ (yiNobs + 1), m--,
+              For[m = (2*NN), m = (yiNobs + 1), m--,
                 Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
                     
               ];
@@ -328,7 +328,7 @@ Module[{Output, pi0List, Pii0List, j, pi0, Pii0, k, Output1, Output2, piCIlowerl
       
     alphaMaxIndex = -1;
       
-    For[j = 1, j ≤ Length[largestalphaList], j++,
+    For[j = 1, j = Length[largestalphaList], j++,
 
      If[largestalphaList[[j]] > alphaMax, alphaMax = largestalphaList[[j]]; alphaMaxIndex = j];
           
@@ -389,10 +389,10 @@ Module[{Output, pi0List, j, pi0, Pii0, Output1, Output2, piCIlowerlimit, piCIupp
     
     
 
-  For[j = 0, j ≤ (2*M), j++,
+  For[j = 0, j = (2*M), j++,
     pi0 = j/(2*M);
       
-    If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
+    If[(pi0 = (yiNobs/(2*M))) && (pi0 = (1 - (((2*NN) - yiNobs)/(2*M)))),
         
       (* Max homozygosity case *)
         
@@ -405,7 +405,7 @@ Module[{Output, pi0List, j, pi0, Pii0, Output1, Output2, piCIlowerlimit, piCIupp
       (* Extra constraint for Pii0 to ensure that Pii0*M, the number of homozygotes in the population,
         is an integer *)
         
-      If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0) && (Head[Pii0*M] == Integer),
+      If[(Pii0 = Max[0, (2*pi0) - 1]) && (Pii0 = pi0) && (Head[Pii0*M] == Integer),
           
         Output1 = AcceptanceRegion[M, NN, pi0, Pii0, yiNobs, alpha];
           
@@ -447,10 +447,10 @@ Module[{Output, pi0List, j, pi0, Pii0, Output1, Output2, piCIlowerlimit, piCIupp
       
     Outputcounter = 1;
       
-    For[j = 1, j ≤ (2*M), j++, 
+    For[j = 1, j = (2*M), j++, 
       pi0 = j/(2*M);
         
-      If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
+      If[(pi0 = (yiNobs/(2*M))) && (pi0 = (1 - (((2*NN) - yiNobs)/(2*M)))),
           
         (* Max homozygosity case *)
           
@@ -461,13 +461,13 @@ Module[{Output, pi0List, j, pi0, Pii0, Output1, Output2, piCIlowerlimit, piCIupp
         (* Replace with Pii0 = Max[0, (2*pi0) - 1] for Min homozygosity case *)
           
                      
-        If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0) && (Head[Pii0*M] == Integer),
+        If[(Pii0 = Max[0, (2*pi0) - 1]) && (Pii0 = pi0) && (Head[Pii0*M] == Integer),
             
           If[yiNobs < Output[[Outputcounter, 3]],
               
             Sumprob = 0.0;
               
-            For[m = 0, m ≤ (yiNobs - 1), m++, 
+            For[m = 0, m = (yiNobs - 1), m++, 
               Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
                 
             ];
@@ -480,7 +480,7 @@ Module[{Output, pi0List, j, pi0, Pii0, Output1, Output2, piCIlowerlimit, piCIupp
               
             Sumprob2 = 0.0;
               
-            For[m = (2*NN), m ≥ (yiNobs + 1), m--,
+            For[m = (2*NN), m = (yiNobs + 1), m--,
               Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
                        
             ];
@@ -506,7 +506,7 @@ Module[{Output, pi0List, j, pi0, Pii0, Output1, Output2, piCIlowerlimit, piCIupp
       
     alphaMaxIndex = -1;
       
-    For[j = 1, j ≤ Length[largestalphaList], j++,
+    For[j = 1, j = Length[largestalphaList], j++,
         
       If[largestalphaList[[j]] > alphaMax, alphaMax = largestalphaList[[j]]; alphaMaxIndex = j];
           
