@@ -247,6 +247,179 @@ print(res)
 <pre><code>[1] 0.250394
 </code></pre>
 
+<h4><code>AcceptanceRegion</code></h4>
+
+<p>This program tests the null hypothesis \( H_{o}:p_{i}=p_{i,0}, P_{ii}=P_{ii,0} \) for an observed value of \( y_{i,N} \), \( \hat{y}_{i,N} \), given the sampling scenario considered. It does this by calculating the acceptance region for a specified significance level, \( \alpha \), and then determining whether \( \hat{y}_{i,N} \) lies within this region. The outputs are bounds of the acceptance region and an indication of whether \( \hat{y}_{i,N} \) falls within this region or not (&#39;1&#39; == TRUE, &#39;0&#39; == FALSE, respectively).</p>
+
+<h5><code>AcceptanceRegion</code> source code (<code>R</code>)</h5>
+
+<pre><code class="r">AcceptanceRegion &lt;- function(M, NN, p_i0, P_ii0, yiNobs, alpha){
+
+  # find the lower bound of the acceptance region
+  SumProb &lt;- 0
+  yiNlow &lt;- 0
+  dummy1 &lt;- 0
+  while(SumProb &lt;= (alpha/2)){
+    dummy1 &lt;- pmfSamplingDistYiN(M, NN, p_i0, P_ii0, yiNlow)
+    SumProb &lt;- SumProb + dummy1
+    yiNlow &lt;- yiNlow + 1
+  }
+  yiNlow &lt;- yiNlow - 1
+  dummy1 &lt;- pmfSamplingDistYiN(M, NN, p_i0, P_ii0, yiNlow)
+  SumProb &lt;- SumProb - dummy1
+  # find the upper bound of the acceptance region
+  SumProb2 &lt;- 1
+  yiNup &lt;- 2*NN
+  while(SumProb2 &gt;= (1-(alpha/2))){
+    dummy1 &lt;- pmfSamplingDistYiN(M, NN, p_i0, P_ii0, yiNup)
+    SumProb2 &lt;- SumProb2 - dummy1
+    yiNup &lt;- yiNup - 1
+  }
+  yiNup &lt;- yiNup + 1
+  dummy1 &lt;- pmfSamplingDistYiN(M, NN, p_i0, P_ii0, yiNup)
+  SumProb2 &lt;- SumProb2 + dummy1
+  # Test if yiNobs is with in the accptance region
+  test &lt;- yiNobs &gt;= yiNlow &amp;&amp; yiNobs &lt;= yiNup
+  out &lt;- list(lowerbound = yiNlow, 
+              upperbound = yiNup,
+              result = test)
+  return(unlist(out))
+}
+</code></pre>
+
+<h5><code>AcceptanceRegion</code> example</h5>
+
+<pre><code class="r"># test timing
+system.time(res &lt;- AcceptanceRegion(1000, 30, 0.625, 0.25, 50, 0.05))
+</code></pre>
+
+<pre><code>   user  system elapsed 
+      0       0       0 
+</code></pre>
+
+<pre><code class="r"># print results
+print(res)
+</code></pre>
+
+<pre><code>lowerbound upperbound     result 
+        33         42          0 
+</code></pre>
+
+<h4><code>CIforpiCasePiiUnknown</code></h4>
+
+<p>This program calculates \( \geq 100(1-\alpha) % \) confidence intervals (CI&#39;s) for \( p_i \) and \( P_{ii} \) given \( M \), \( N \) and \( \hat{y}_{i,N} \). These CI&#39;s are computed using equation (14a) and (14b) in the main text, and uses <code>pmfSamplingDistYiN</code> and <code>AcceptanceRegion</code>. The outputs are the lower and upper limits of the CI for \( p_i \) followed by those of the CI for \( P_{ii} \).</p>
+
+<h5><code>CIforpiCasePiiUnknown</code> source code (<code>R</code>)</h5>
+
+<pre><code class="r">CIforpiCasePiiUnknown &lt;- function(M, NN, yiNobs, alpha){
+  pi0List &lt;- vector()
+  Pii0List &lt;- vector()
+  out &lt;- matrix()
+  i = 0
+  while(i  &lt;= (2*M)){
+    p_i0 &lt;- i/(2*M)
+    if((p_i0 &gt;= (yiNobs/(2*M))) &amp;&amp; (p_i0 &lt;= (1 - (((2*NN)-yiNobs)/(2*M))))){
+      k=0
+      while(k &lt;= i){
+        P_ii0 &lt;- k/(2*M)
+        if((P_ii0 &gt;= max(0, (2*p_i0)-1)) &amp;&amp; (P_ii0 &lt;= p_i0)){
+          out1 &lt;- AcceptanceRegion(M, NN, p_i0, P_ii0, yiNobs, alpha)
+          if(out1[3] == 1L){
+            pi0List &lt;- c(pi0List, p_i0)
+            Pii0List &lt;- c(Pii0List, P_ii0)
+          }
+          out2 &lt;- c(out1,p_i0, P_ii0)
+          if(all(is.na(out))){
+            out &lt;- out2
+          } else{
+            out &lt;- rbind(out, out2) 
+          }
+        }
+        k &lt;- k + 1
+      }
+    }
+    i &lt;- i + 1
+  }
+  if(length(pi0List) &gt; 0){
+    piCIlow &lt;- min(pi0List)
+    piCIup &lt;- max(pi0List)
+    PiiCIlow &lt;- min(Pii0List)
+    PiiCIup &lt;- max(Pii0List)
+  } else if(length(pi0List) == 0){
+    largestAlpha &lt;- 0
+    outCounter &lt;- 1
+    while(i &lt;= (2*M)){
+      p_i0 &lt;- i/(2*M)
+      if((p_i0 &gt;= (yiNobs/(2*M))) &amp;&amp; (p_i0 &lt;= (1 - (((2*NN)-yiNobs)/(2*M))))){
+        while(k &lt;= i){
+          P_ii0 &lt;- k/(2*M)
+          if((P_ii0 = max[0, (2*p_i0) - 1]) &amp;&amp; (P_ii0 = p_i0)){
+            if(yiNobs &lt; out[outCounter, 1]){
+              Sumprob &lt;- 0
+              m = 0
+              while(m &lt;= (yiNobs - 1)){
+                Sumprob &lt;- Sumprob + pmfSamplingDistYiN(M, NN, p_i0List[i],
+                                                        P_ii0List[i], m)
+                m &lt;- m + 1
+              }
+              largestAlpha &lt;- c(largestAlpha, Sumprob*2) 
+            }
+            if(yiNobs &gt; out[outCounter, 2]){
+              Sumprob2 &lt;- 0
+              m = (2*NN)
+              while(m &gt;= (yiNobs +1)){
+                Sumprob2 &lt;- Sumprob2 + pmfSamplingDistYiN(M, NN, p_i0List[i],
+                                                          P_ii0List[i], m)
+                m &lt;- m - 1
+              }
+              largestAlpha &lt;- c(largestAlpha, Sumprob2*2)
+            }            
+          }
+          outCounter &lt;- outCounter + 1
+        }
+      }
+    }
+    alphaMax &lt;- -1
+    alphaMaxIdx &lt;- -1
+    j = 1
+    while(j &lt;= length(largestAlpha)){
+      if(largestAlpha[j] &gt; alphaMax){
+        alphaMax &lt;- largestAlpha[j]
+        alphaMaxIdx &lt;- j
+      }
+      j &lt;- j+1
+    }
+    piCIlow &lt;- out[alphaMaxIdx, 4]
+    piCIup &lt;- piCIlow
+    PiiCIlow &lt;- out[alphaMaxIdx, 5]
+    PiiCIup &lt;- out[alphaMaxIdx, 5]
+  }
+  list(piCI = c(piCIlow, piCIup), 
+       PiiCI = c(PiiCIlow, PiiCIup))
+}
+</code></pre>
+
+<h5><code>CIforpiCasePiiUnknown</code> example</h5>
+
+<pre><code class="r"># test timing
+system.time(res &lt;- CIforpiCasePiiUnknown(100, 30, 5, 0.05))
+</code></pre>
+
+<pre><code>   user  system elapsed 
+  53.16    0.00   53.31 
+</code></pre>
+
+<pre><code class="r"># print results
+print(res)
+</code></pre>
+
+<pre><code>$piCI
+[1] 0.025 0.200
+
+$PiiCI
+[1] 0.000 0.195
+</code></pre>
+
 </body>
 
 </html>

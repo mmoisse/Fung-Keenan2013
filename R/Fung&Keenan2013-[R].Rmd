@@ -57,3 +57,153 @@ system.time(res <- pmfSamplingDistYiN(1000, 10, 0.1, 0.04, 1))
 # print results
 print(res)
 ```
+
+#### `AcceptanceRegion`
+This program tests the null hypothesis $H_{o}:p_{i}=p_{i,0}, P_{ii}=P_{ii,0}$ for an observed value of $y_{i,N}$, $latex \hat{y}_{i,N}$, given the sampling scenario considered. It does this by calculating the acceptance region for a specified significance level, $latex \alpha$, and then determining whether $latex \hat{y}_{i,N}$ lies within this region. The outputs are bounds of the acceptance region and an indication of whether $latex \hat{y}_{i,N}$ falls within this region or not ('1' == TRUE, '0' == FALSE, respectively).
+
+
+##### `AcceptanceRegion` source code (`R`)
+```{r}
+AcceptanceRegion <- function(M, NN, p_i0, P_ii0, yiNobs, alpha){
+  
+  # find the lower bound of the acceptance region
+  SumProb <- 0
+  yiNlow <- 0
+  dummy1 <- 0
+  while(SumProb <= (alpha/2)){
+    dummy1 <- pmfSamplingDistYiN(M, NN, p_i0, P_ii0, yiNlow)
+    SumProb <- SumProb + dummy1
+    yiNlow <- yiNlow + 1
+  }
+  yiNlow <- yiNlow - 1
+  dummy1 <- pmfSamplingDistYiN(M, NN, p_i0, P_ii0, yiNlow)
+  SumProb <- SumProb - dummy1
+  # find the upper bound of the acceptance region
+  SumProb2 <- 1
+  yiNup <- 2*NN
+  while(SumProb2 >= (1-(alpha/2))){
+    dummy1 <- pmfSamplingDistYiN(M, NN, p_i0, P_ii0, yiNup)
+    SumProb2 <- SumProb2 - dummy1
+    yiNup <- yiNup - 1
+  }
+  yiNup <- yiNup + 1
+  dummy1 <- pmfSamplingDistYiN(M, NN, p_i0, P_ii0, yiNup)
+  SumProb2 <- SumProb2 + dummy1
+  # Test if yiNobs is with in the accptance region
+  test <- yiNobs >= yiNlow && yiNobs <= yiNup
+  out <- list(lowerbound = yiNlow, 
+              upperbound = yiNup,
+              result = test)
+  return(unlist(out))
+}
+```
+
+##### `AcceptanceRegion` example
+```{r}
+# test timing
+system.time(res <- AcceptanceRegion(1000, 30, 0.625, 0.25, 50, 0.05))
+# print results
+print(res)
+```
+
+#### `CIforpiCasePiiUnknown`
+This program calculates $latex \geq 100(1-\alpha) %$ confidence intervals (CI's) for $p_i$ and $P_{ii}$ given $M$, $N$ and $latex \hat{y}_{i,N}$. These CI's are computed using equation (14a) and (14b) in the main text, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper limits of the CI for $p_i$ followed by those of the CI for $P_{ii}$.
+
+##### `CIforpiCasePiiUnknown` source code (`R`)
+```{r}
+CIforpiCasePiiUnknown <- function(M, NN, yiNobs, alpha){
+  pi0List <- vector()
+  Pii0List <- vector()
+  out <- matrix()
+  i = 0
+  while(i  <= (2*M)){
+    p_i0 <- i/(2*M)
+    if((p_i0 >= (yiNobs/(2*M))) && (p_i0 <= (1 - (((2*NN)-yiNobs)/(2*M))))){
+      k=0
+      while(k <= i){
+        P_ii0 <- k/(2*M)
+        if((P_ii0 >= max(0, (2*p_i0)-1)) && (P_ii0 <= p_i0)){
+          out1 <- AcceptanceRegion(M, NN, p_i0, P_ii0, yiNobs, alpha)
+          if(out1[3] == 1L){
+            pi0List <- c(pi0List, p_i0)
+            Pii0List <- c(Pii0List, P_ii0)
+          }
+          out2 <- c(out1,p_i0, P_ii0)
+          if(all(is.na(out))){
+            out <- out2
+          } else{
+            out <- rbind(out, out2) 
+          }
+        }
+        k <- k + 1
+      }
+    }
+    i <- i + 1
+  }
+  if(length(pi0List) > 0){
+    piCIlow <- min(pi0List)
+    piCIup <- max(pi0List)
+    PiiCIlow <- min(Pii0List)
+    PiiCIup <- max(Pii0List)
+  } else if(length(pi0List) == 0){
+    largestAlpha <- 0
+    outCounter <- 1
+    while(i <= (2*M)){
+      p_i0 <- i/(2*M)
+      if((p_i0 >= (yiNobs/(2*M))) && (p_i0 <= (1 - (((2*NN)-yiNobs)/(2*M))))){
+        while(k <= i){
+          P_ii0 <- k/(2*M)
+          if((P_ii0 ≥ max[0, (2*p_i0) - 1]) && (P_ii0 ≤ p_i0)){
+            if(yiNobs < out[outCounter, 1]){
+              Sumprob <- 0
+              m = 0
+              while(m <= (yiNobs - 1)){
+                Sumprob <- Sumprob + pmfSamplingDistYiN(M, NN, p_i0List[i],
+                                                        P_ii0List[i], m)
+                m <- m + 1
+              }
+              largestAlpha <- c(largestAlpha, Sumprob*2) 
+            }
+            if(yiNobs > out[outCounter, 2]){
+              Sumprob2 <- 0
+              m = (2*NN)
+              while(m >= (yiNobs +1)){
+                Sumprob2 <- Sumprob2 + pmfSamplingDistYiN(M, NN, p_i0List[i],
+                                                          P_ii0List[i], m)
+                m <- m - 1
+              }
+              largestAlpha <- c(largestAlpha, Sumprob2*2)
+            }            
+          }
+          outCounter <- outCounter + 1
+        }
+      }
+    }
+    alphaMax <- -1
+    alphaMaxIdx <- -1
+    j = 1
+    while(j <= length(largestAlpha)){
+      if(largestAlpha[j] > alphaMax){
+        alphaMax <- largestAlpha[j]
+        alphaMaxIdx <- j
+      }
+      j <- j+1
+    }
+    piCIlow <- out[alphaMaxIdx, 4]
+    piCIup <- piCIlow
+    PiiCIlow <- out[alphaMaxIdx, 5]
+    PiiCIup <- out[alphaMaxIdx, 5]
+  }
+  list(piCI = c(piCIlow, piCIup), 
+       PiiCI = c(PiiCIlow, PiiCIup))
+}
+```
+
+##### `CIforpiCasePiiUnknown` example
+```{r}
+# test timing
+system.time(res <- CIforpiCasePiiUnknown(100, 30, 5, 0.05))
+# print results
+print(res)
+```
+
