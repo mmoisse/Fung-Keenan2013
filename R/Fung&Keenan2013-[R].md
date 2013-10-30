@@ -8,9 +8,9 @@ Tak Fung^1,2 and Kevin Keenan^3
 <h6>
 <sup>1</sup> National University of Singapore, Department of Biological Sciences, 14 Science Drive 4, Singapore 117543
 
-<sup>2</sup> Queen’s University Belfast, School of Biological Sciences, Belfast BT9 7BL, UK
+<sup>2</sup> Queens University Belfast, School of Biological Sciences, Belfast BT9 7BL, UK
 
-<sup>3</sup> Queen’s University Belfast, Institute for Global Food Security, School of Biological Sciences, Belfast BT9 7BL, UK
+<sup>3</sup> Queens University Belfast, Institute for Global Food Security, School of Biological Sciences, Belfast BT9 7BL, UK
 
 </center>
 </h6>
@@ -21,14 +21,12 @@ This document describes the functionality of the R code converted from the _Math
 #### `pmfSamplingDistYiN`
 This program returns $P(Y_{i,N} = y_{i,N})$ as specified by equation (9) in the main text, given $M$, $N$, $p_{i}$, $P_{ii}$ and $y_{i,n}$. Here, $Y_{i,N}$ is the random variable specifying the number of copies of allele $A_{i}$ in a sample of size $N$ taken from a finite diploid population of size $M$, with the frequency of allele $A_{i}$ in the population being $p_{i}$ and the frequency of homozygotes of allele $A_{i}$ in the population being $P_{ii}$.
 
-```{r, echo=FALSE}
-opts_chunk$set(comment = "",
-               tidy = FALSE)
-options(digits = 6)
-```
+
+
 
 ##### `pmfSamplingDistYiN` source code (`R`)
-```{r}
+
+```r
 pmfSamplingDistYiN <- function(M, NN, p_i, P_ii, yiN){
   MaxFunc <- max((yiN/2) - (M*p_i) + (M*P_ii), yiN - NN, 0)
   MinFunc <- min(M*P_ii, yiN/2, M-NN+yiN-(2*M*p_i)+(M*P_ii))
@@ -49,20 +47,36 @@ pmfSamplingDistYiN <- function(M, NN, p_i, P_ii, yiN){
 }
 ```
 
+
 ##### `pmfSamplingDistYiN` example
-```{r}
+
+```r
 # test timing
 system.time(res <- pmfSamplingDistYiN(1000, 10, 0.1, 0.04, 1))
+```
+
+```
+   user  system elapsed 
+      0       0       0 
+```
+
+```r
 # print results
 print(res)
 ```
+
+```
+[1] 0.250394
+```
+
 
 #### `AcceptanceRegion`
 This program tests the null hypothesis $H_{o}:p_{i}=p_{i,0}, P_{ii}=P_{ii,0}$ for an observed value of $y_{i,N}$, $latex \hat{y}_{i,N}$, given the sampling scenario considered. It does this by calculating the acceptance region for a specified significance level, $latex \alpha$, and then determining whether $latex \hat{y}_{i,N}$ lies within this region. The outputs are bounds of the acceptance region and an indication of whether $latex \hat{y}_{i,N}$ falls within this region or not ('1' == TRUE, '0' == FALSE, respectively).
 
 
 ##### `AcceptanceRegion` source code (`R`)
-```{r}
+
+```r
 AcceptanceRegion <- function(M, NN, p_i0, P_ii0, yiNobs, alpha){
   
   # find the lower bound of the acceptance region
@@ -97,19 +111,36 @@ AcceptanceRegion <- function(M, NN, p_i0, P_ii0, yiNobs, alpha){
 }
 ```
 
+
 ##### `AcceptanceRegion` example
-```{r}
+
+```r
 # test timing
 system.time(res <- AcceptanceRegion(1000, 30, 0.625, 0.25, 50, 0.05))
+```
+
+```
+   user  system elapsed 
+      0       0       0 
+```
+
+```r
 # print results
 print(res)
 ```
+
+```
+lowerbound upperbound     result 
+        33         42          0 
+```
+
 
 #### `CIforpiCasePiiUnknown`
 This program calculates $latex \geq 100(1-\alpha) %$ confidence intervals (CI's) for $p_i$ and $P_{ii}$ given $M$, $N$ and $latex \hat{y}_{i,N}$. These CI's are computed using equation (14a) and (14b) in the main text, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper limits of the CI for $p_i$ followed by those of the CI for $P_{ii}$.
 
 ##### `CIforpiCasePiiUnknown` source code (`R`)
-```{r}
+
+```r
 CIforpiCasePiiUnknown <- function(M, NN, yiNobs, alpha){
   pi0List <- vector()
   Pii0List <- vector()
@@ -152,7 +183,7 @@ CIforpiCasePiiUnknown <- function(M, NN, yiNobs, alpha){
       if((p_i0 >= (yiNobs/(2*M))) && (p_i0 <= (1 - (((2*NN)-yiNobs)/(2*M))))){
         while(k <= i){
           P_ii0 <- k/(2*M)
-          if((P_ii0 ≥ max[0, (2*p_i0) - 1]) && (P_ii0 ≤ p_i0)){
+          if((P_ii0 = max[0, (2*p_i0) - 1]) && (P_ii0 = p_i0)){
             if(yiNobs < out[outCounter, 1]){
               Sumprob <- 0
               m = 0
@@ -198,11 +229,30 @@ CIforpiCasePiiUnknown <- function(M, NN, yiNobs, alpha){
 }
 ```
 
+
 ##### `CIforpiCasePiiUnknown` example
-```{r, slowCode1, cache=TRUE}
+
+```r
 # test timing
 system.time(res <- CIforpiCasePiiUnknown(100, 30, 5, 0.05))
+```
+
+```
+   user  system elapsed 
+  57.00    0.04   58.32 
+```
+
+```r
 # print results
 print(res)
 ```
+
+```
+$piCI
+[1] 0.025 0.200
+
+$PiiCI
+[1] 0.000 0.195
+```
+
 
