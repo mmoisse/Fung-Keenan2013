@@ -534,3 +534,44 @@ Module[{Output, pi0List, j, pi0, Pii0, Output1, Output2, piCIlowerlimit, piCIupp
 CIforpiCasePiiKnown[438, 53, 1, 0.05/3] // Timing
 {8.96702 Second, {0.00228311, 0.0799087}}
 ```
+
+## Calculate $latex \geq$ 95% CI for Jost's $D$
+In this example, the $latex \geq$ 95% CI for Jost's $D$ is calculated for the butterfly example given in the main text. This code uses `CIforpiCasePiiKnown` to calculate the CI's for the population frequencies of each of the three alleles in each of the two populations. Then it uses these CI's to minimize and maximise Jost's $D$, which corresponds to the lower and upper bounds for its CI, respectively.
+
+```
+(* Find CI's for p1, p2 and p3, for Prasto population *)
+CIforp1Prasto = CIforpiCasePiiKnown[2*219, 53, 1, 0.05/3];
+CIforp2Prasto = CIforpiCasePiiKnown[2*219, 53, 80, 0.05/3];
+CIforp3Prasto = CIforpiCasePiiKnown[2*219, 53, 24, 0.05/3];
+
+(* Find CI's for q1, q2 and q3, for Finstrom population *)
+CIforq1Finstrom = CIforpiCasePiiKnown[7*219, 74, 4, 0.05/3];
+CIforq2Finstrom = CIforpiCasePiiKnown[7*219, 74, 123, 0.05/3];
+CIforq3Finstrom = CIforpiCasePiiKnown[7*219, 74, 4, 0.05/3];
+
+(* Define Jost's D *)
+plist = {p1, p2, p3, 1 - p1 - p2 - p3};
+qlist = {q1, q2, q3, 1 - q1 - q2 - q3};
+JostS = (Sum[plist[[k]]*plist[[k]], {k, 1, 4}] + Sum[qlist[[k]]*qlist[[k]], {k, 1, 4}])/2;
+JostT = Sum[((plist[[k]] + qlist[[k]])/2)^2, {k, 1, 4}];
+JostD = ((JostT/JostS) - 1)/((1/2) - 1);
+
+(* Find lower bound of CI for Jost's D *)
+Minimize[JostD, (p1 > CIforp1Prasto[[1]]) && (p1 < CIforp1Prasto[[2]]) && (p2 > CIforp2Prasto[[1]]) 
+  && (p2 < CIforp2Prasto[[2]]) && (p3 > CIforp3Prasto[[1]]) && (p3 < CIforp3Prasto[[2]]) 
+  && (q1 > CIforq1Finstrom[[1]]) && (q1 < CIforq1Finstrom[[2]]) && (q2 > CIforq2Finstrom[[1]]) 
+  && (q2 < CIforq2Finstrom[[2]]) && (q3 > CIforq3Finstrom[[1]]) && (q3 < CIforq3Finstrom[[2]]) 
+  && (p1 + p2 + p3 ≤ 1) && (q1 + q2 + q3 ≤ 1), {p1, p2, p3, q1, q2, q3}]
+
+(* Find upper bound of CI for Jost's D *)
+Maximize[JostD, (p1 > CIforp1Prasto[[1]]) && (p1 < CIforp1Prasto[[2]]) && (p2 > CIforp2Prasto[[1]]) 
+  && (p2 < CIforp2Prasto[[2]]) && (p3 >
+CIforp3Prasto[[1]]) && (p3 < CIforp3Prasto[[2]]) 
+  && (q1 > CIforq1Finstrom[[1]]) && (q1 < CIforq1Finstrom[[2]]) && (q2 > CIforq2Finstrom[[1]]) 
+  && (q2 < CIforq2Finstrom[[2]]) && (q3 >
+CIforq3Finstrom[[1]]) && (q3 < CIforq3Finstrom[[2]]) 
+  && (p1 + p2 + p3 ≤ 1) && (q1 + q2 + q3 ≤ 1), {p1, p2, p3, q1, q2, q3}]
+```
+  
+## Source code
+In the interest of reproducibility, all source code, both for the [`R`](http://rpubs.com/kkeenan02/Fung-Keenan-R) and the _Mathematica_ versions of this document can be freely accessed @ https://github.com/kkeenan02/Fung-Keenan2013.

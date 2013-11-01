@@ -307,3 +307,79 @@ system.time({res <- CIforpiCasePiiKnown(438, 53, 1, 0.05/3)})
 # print results
 print(res)
 ```
+
+## Calculate $latex \geq$ 95% CI for Jost's $D$
+In this example, the $latex \geq$ 95% CI for Jost's $D$ is calculated for the butterfly example given in the main text. This code uses `CIforpiCasePiiKnown` to calculate the CI's for the population frequencies of each of the three alleles in each of the two populations. Then it uses these CI's to minimize and maximise Jost's $D$, which corresponds to the lower and upper bounds for its CI, respectively.
+
+```{r jostd, cache=TRUE}
+# Find CI's for p1, p2 and p3, for Prasto population
+CIforp1Prasto <- CIforpiCasePiiKnown(2*219, 53, 1, 0.05/3)
+CIforp2Prasto <- CIforpiCasePiiKnown(2*219, 53, 80, 0.05/3)
+CIforp3Prasto <- CIforpiCasePiiKnown(2*219, 53, 24, 0.05/3)
+
+# Find CI's for q1, q2 and q3, for Finstrom population
+CIforq1Finstrom <- CIforpiCasePiiKnown(7*219, 74, 4, 0.05/3)
+CIforq2Finstrom <- CIforpiCasePiiKnown(7*219, 74, 123, 0.05/3)
+CIforq3Finstrom <- CIforpiCasePiiKnown(7*219, 74, 4, 0.05/3)
+
+# Define Jost's D
+JostD <- function(freq){
+  plist <- c(freq[1:3], 1-sum(freq[1:3]))
+  qlist <- c(freq[4:6], 1-sum(freq[4:6]))
+  JostT <- sum(((plist + qlist)/2)^2)
+  JostS <- (sum(plist^2) + sum(qlist^2))/2
+  return(((JostT/JostS) - 1)/((1/2) - 1))
+}
+
+# JostDMinus is -JostD, required because optimization program
+# used below minimizes functions, and minimizing -JostD
+# is equivalent to maximizing JostD
+JostDMinus=function(x){
+  -JostD(x)
+}
+
+# load Rsolnp package for optimization
+library(Rsolnp)
+
+# define inequalities
+ineqfun1 <- function(freq){
+  return(c(freq[1:6], sum(freq[1:3]), sum(freq[4:6])))
+}
+
+# Define lower and upper bounds on inequalities to be used in 
+# optimization program
+ineqLB1=c(CIforp1Prasto[1], CIforp2Prasto[1], CIforp3Prasto[1],
+          CIforq1Finstrom[1], CIforq2Finstrom[1], CIforq3Finstrom[1],
+          0, 0)
+ineqUB1=c(CIforp1Prasto[2], CIforp2Prasto[2], CIforp3Prasto[2],
+          CIforq1Finstrom[2], CIforq2Finstrom[2], CIforq3Finstrom[2],
+          1, 1)
+
+# Define initial values of population allele frequencies to be used in optimization program,
+# which are mid-points of CI's
+x0=c(mean(CIforp1Prasto), mean(CIforp2Prasto), mean(CIforp3Prasto),
+     mean(CIforq1Finstrom), mean(CIforq2Finstrom), mean(CIforq3Finstrom))
+
+# Find lower bound of CI for Jost's D
+FindMinJostD <- solnp(x0, fun = JostD, ineqfun = ineqfun1, 
+                      ineqLB = ineqLB1, ineqUB = ineqUB1)
+MinJostD <- FindMinJostD$values[length(FindMinJostD$values)]
+
+# Find upper bound of CI for Jost's D
+FindMaxJostD <- solnp(x0, fun = JostDMinus, ineqfun = ineqfun1, 
+                      ineqLB = ineqLB1, ineqUB = ineqUB1)
+MaxJostD <- -FindMaxJostD$values[length(FindMaxJostD$values)]
+
+# Lower bound
+MinJostD
+# Upper bound
+MaxJostD
+```
+
+## Source code
+In the interest of reproducibility, all source code, both for the [_Mathematica_](http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica) and the `R` versions of this document can be freely accessed @ https://github.com/kkeenan02/Fung-Keenan2013.
+
+## Reproducibility
+```{r, echo=FALSE}
+print(sessionInfo(), locale = FALSE)
+```
