@@ -1,32 +1,9 @@
-<center>
-Fung & Keenan 2013: Description of R functions used to calculate  confidence intervals
-========================================================
+# This script contains all of the R code necessary to repeat the 
+# butterfly example from Fung & Keenan. Mathematica code is also
+# available @ https://github.com/kkeenan02/Fung-Keenan2013
 
-Tak Fung^1,2 and Kevin Keenan^3
-----------------------------------------------------
+# Tak Fung & Kevin Keenan 2013
 
-<h6>
-<sup>1</sup> National University of Singapore, Department of Biological Sciences, 14 Science Drive 4, Singapore 117543
-
-<sup>2</sup> Queens University Belfast, School of Biological Sciences, Belfast BT9 7BL, UK
-
-<sup>3</sup> Queens University Belfast, Institute for Global Food Security, School of Biological Sciences, Belfast BT9 7BL, UK
-
-</center>
-</h6>
-
-## Introduction
-This document describes the functionality of the R code converted from the _Mathematica_ code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1] and subsequently converted and tested in `R`. This document describes four separate function named, `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiknown`. The original _Mathematica_ version of this workbook can be found @ http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica
-
-## pmfSamplingDistYiN
-This function returns $P(Y_{i,N} = y_{i,N})$ as specified by equation (9) in the main text, given $M$, $N$, $p_{i}$, $P_{ii}$ and $y_{i,n}$. Here, $Y_{i,N}$ is the random variable specifying the number of copies of allele $A_{i}$ in a sample of size $N$ taken from a finite diploid population of size $M$, with the frequency of allele $A_{i}$ in the population being $p_{i}$ and the frequency of homozygotes of allele $A_{i}$ in the population being $P_{ii}$.
-
-
-
-
-### pmfSamplingDistYiN source code (`R`)
-
-```r
 pmfSamplingDistYiN <- function(M, NN, p_i, P_ii, yiN){
   MaxFunc <- max((yiN/2) - (M*p_i) + (M*P_ii), yiN - NN, 0)
   MinFunc <- min(M*P_ii, yiN/2, M-NN+yiN-(2*M*p_i)+(M*P_ii))
@@ -45,40 +22,8 @@ pmfSamplingDistYiN <- function(M, NN, p_i, P_ii, yiN){
   probOut <- Numerator1/choose(M, NN)
   return(probOut)
 }
-```
 
-
-### pmfSamplingDistYiN example
-
-```r
-# test timing
-system.time(res <- pmfSamplingDistYiN(1000, 10, 0.1, 0.04, 1))
-```
-
-```
-   user  system elapsed 
-      0       0       0 
-```
-
-```r
-# print results
-print(res)
-```
-
-```
-[1] 0.250394
-```
-
-
-## AcceptanceRegion
-This function tests the null hypothesis $H_{o}:p_{i}=p_{i,0}, P_{ii}=P_{ii,0}$ for an observed value of $y_{i,N}$, $latex \hat{y}_{i,N}$, given the sampling scenario considered. It does this by calculating the acceptance region for a specified significance level, $latex \alpha$, and then determining whether $latex \hat{y}_{i,N}$ lies within this region. The outputs are bounds of the acceptance region and an indication of whether $latex \hat{y}_{i,N}$ falls within this region or not ('1' == TRUE, '0' == FALSE, respectively).
-
-
-### AcceptanceRegion source code (`R`)
-
-```r
 AcceptanceRegion <- function(M, NN, p_i0, P_ii0, yiNobs, alpha){
-  
   # find the lower bound of the acceptance region
   SumProb <- 0
   yiNlow <- 0
@@ -109,38 +54,8 @@ AcceptanceRegion <- function(M, NN, p_i0, P_ii0, yiNobs, alpha){
               result = test)
   return(unlist(out))
 }
-```
 
 
-### AcceptanceRegion example
-
-```r
-# test timing
-system.time(res <- AcceptanceRegion(1000, 30, 0.625, 0.25, 50, 0.05))
-```
-
-```
-   user  system elapsed 
-      0       0       0 
-```
-
-```r
-# print results
-print(res)
-```
-
-```
-lowerbound upperbound     result 
-        33         42          0 
-```
-
-
-## CIforpiCasePiiUnknown
-This function calculates $latex \geq 100(1-\alpha) %$ confidence intervals (CI's) for $p_i$ and $P_{ii}$ given $M$, $N$ and $latex \hat{y}_{i,N}$. These CI's are computed using equation (14a) and (14b) in the main text, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper limits of the CI for $p_i$ followed by those of the CI for $P_{ii}$.
-
-### CIforpiCasePiiUnknown source code (`R`)
-
-```r
 CIforpiCasePiiUnknown <- function(M, NN, yiNobs, alpha){
   pi0List <- vector()
   Pii0List <- vector()
@@ -227,43 +142,7 @@ CIforpiCasePiiUnknown <- function(M, NN, yiNobs, alpha){
   list(piCI = c(piCIlow, piCIup), 
        PiiCI = c(PiiCIlow, PiiCIup))
 }
-```
 
-
-### CIforpiCasePiiUnknown example
-
-```r
-# test timing
-system.time(res <- CIforpiCasePiiUnknown(100, 30, 5, 0.05))
-```
-
-```
-   user  system elapsed 
-  57.00    0.04   58.32 
-```
-
-```r
-# print results
-print(res)
-```
-
-```
-$piCI
-[1] 0.025 0.200
-
-$PiiCI
-[1] 0.000 0.195
-```
-
-
-## CIforpiCasePiiKnown
-
-This function a $latex \geq 100(1-\alpha)% $ CI for $p_{i}$, given $M$, $N$ and
-$latex \hat{y}_{i,N}$, for a population with maximum homozygosity ($p_{i}=P_{ii}$). The function uses equation (13) in the main text to calculate the CI, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper bounds for the CI. The code of `CIforpiCasePiiKnown` can be easily adapted to calculate CI's under the scenario of HWE or the Scenario of minimum homozygosity, by altering two lines indicated within the code.
-
-### CIforpiCasePiiKnown source code (`R`)
-
-```r
 CIforpiCasePiiKnown <- function(M, NN, yiNobs, alpha){
   out <- matrix()
   pi0List <- vector()
@@ -348,38 +227,8 @@ CIforpiCasePiiKnown <- function(M, NN, yiNobs, alpha){
   res <- list(piCIlower = piCIlow,
               piCIupper = piCIup)
   return(unlist(res))
-}  
-```
+}
 
-
-### CIforpiCasePiiKnown example
-
-```r
-# test timing
-system.time({res <- CIforpiCasePiiKnown(438, 53, 1, 0.05/3)})
-```
-
-```
-   user  system elapsed 
-   1.96    0.00    1.98 
-```
-
-```r
-# print results
-print(res)
-```
-
-```
- piCIlower  piCIupper 
-0.00228311 0.07990868 
-```
-
-
-## Calculate $latex \geq$ 95% CI for Jost's $D$
-In this example, the $latex \geq$ 95% CI for Jost's $D$ is calculated for the butterfly example given in the main text. This code uses `CIforpiCasePiiKnown` to calculate the CI's for the population frequencies of each of the three alleles in each of the two populations. Then it uses these CI's to minimize and maximise Jost's $D$, which corresponds to the lower and upper bounds for its CI, respectively.
-
-
-```r
 # Find CI's for p1, p2 and p3, for Prasto population
 CIforp1Prasto <- CIforpiCasePiiKnown(2*219, 53, 1, 0.05/3)
 CIforp2Prasto <- CIforpiCasePiiKnown(2*219, 53, 80, 0.05/3)
@@ -431,68 +280,16 @@ x0=c(mean(CIforp1Prasto), mean(CIforp2Prasto), mean(CIforp3Prasto),
 # Find lower bound of CI for Jost's D
 FindMinJostD <- solnp(x0, fun = JostD, ineqfun = ineqfun1, 
                       ineqLB = ineqLB1, ineqUB = ineqUB1)
-```
-
-```
-
-Iter: 1 fn: 0.00002344	 Pars:  0.01278 0.87206 0.11416 0.01451 0.87382 0.10894
-Iter: 2 fn: 0.00002344	 Pars:  0.01277 0.87208 0.11416 0.01450 0.87383 0.10894
-solnp--> Completed in 2 iterations
-```
-
-```r
 MinJostD <- FindMinJostD$values[length(FindMinJostD$values)]
 
 # Find upper bound of CI for Jost's D
 FindMaxJostD <- solnp(x0, fun = JostDMinus, ineqfun = ineqfun1, 
                       ineqLB = ineqLB1, ineqUB = ineqUB1)
-```
-
-```
-
-Iter: 1 fn: -0.1858	 Pars:  0.020548 0.598174 0.381279 0.002609 0.913894 0.002609
-Iter: 2 fn: -0.1858	 Pars:  0.020548 0.598174 0.381279 0.002609 0.913894 0.002609
-solnp--> Completed in 2 iterations
-```
-
-```r
 MaxJostD <- -FindMaxJostD$values[length(FindMaxJostD$values)]
 
 # Lower bound
 MinJostD
-```
-
-```
-[1] 2.34359e-05
-```
-
-```r
 # Upper bound
 MaxJostD
-```
 
-```
-[1] 0.185774
-```
-
-
-## Source code
-In the interest of reproducibility, all source code, both for the [_Mathematica_](http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica) and the `R` versions of this document can be freely accessed @ https://github.com/kkeenan02/Fung-Keenan2013.
-
-## Reproducibility
-
-```
-R version 3.0.2 (2013-09-25)
-Platform: x86_64-w64-mingw32/x64 (64-bit)
-
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
-
-other attached packages:
-[1] knitr_1.4.1
-
-loaded via a namespace (and not attached):
-[1] digest_0.6.3   evaluate_0.4.7 formatR_0.9    stringr_0.6.2 
-[5] tools_3.0.2   
-```
-
+## END

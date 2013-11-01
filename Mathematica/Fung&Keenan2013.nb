@@ -1,509 +1,864 @@
-(* M is the population size;
-  NN is the sample size;
-  
-  pi is the frequency of allele Ai in the population;
-  Pii is the frequency of homozygotes with allele Ai in the population;
-  yiN is a particular value of the number of copies of allele Ai in the sample *)
-pmfSamplingDistYiN[M_, NN_, pi_, Pii_, yiN _]:=
-  
-Module[{Maxfunc, Minfunc, Lowerbound, Upperbound, Numerator1, Summand, Prob, xii},
-    
-    
+(************** Content-type: application/mathematica **************
+                     CreatedBy='Mathematica 5.0'
 
-  (* The lower and upper bounds for xii are specified according to equation (8) *)
-    
-  Maxfunc = Max[(yiN/2) - (M*pi) + (M*Pii), yiN - NN, 0];
-    
-  Minfunc = Min[M*Pii, yiN/2, M - NN + yiN - (2*M*pi) + (M*Pii)];
-    
-  Lowerbound = Ceiling[Maxfunc];
-    
-  Upperbound = Floor[Minfunc];
-    
+                    Mathematica-Compatible Notebook
 
-  (* P(YiN = yiN) is calculated according to equation (9) *)
-    
-  (* First, numerator is computed. *)
-    
-  Numerator1 = 0.0;
-    
-  For[xii = Lowerbound, xii ≤ Upperbound, xii++,
-      
-    Summand = Binomial[M*Pii, xii]*Binomial[2*M*(pi - Pii), yiN - (2*xii)]*Binomial[M + (M*Pii) -  
-      (2*M*pi), NN + xii - yiN];
-      
-    Numerator1 = Numerator1 + Summand;
-      
-  ];
-    
-  (* Second, numerator is divided by denominator *)
-    
-  Prob = Numerator1/Binomial[M, NN];
-    
-  Return[Prob];
-    
-    
-];
+This notebook can be used with any Mathematica-compatible
+application, such as Mathematica, MathReader or Publicon. The data
+for the notebook starts with the line containing stars above.
 
-(* Example Run and Output *)
-pmfSamplingDistYiN[1000, 10, 0.1, 0.04, 1] // Timing
-{0.005244 Second, 0.250394}
- 
+To get the notebook into a Mathematica-compatible application, do
+one of the following:
 
-(* M is the population size;
-  
-  NN is the sample size;
-  
-  pi0 is a possible value for the frequency of allele Ai in the population;
-  
-  Pii0 is a possible value for the frequency of homozygotes with allele Ai in
-the population;
-  
-  yiNobs is the observed number of copies of allele Ai in the sample;
-  
-  alpha is the significance level *)
-AcceptanceRegion[M_, NN_, pi0_, Pii0_, yiNobs_, alpha_]:=
-  
-Module[{Sumprob, yiNlower, dummy1, Sumprob2, yiNupper, TestyiNobs, Output},
-    
-    
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the
+  application;
 
-  (* First, determine lower bound of acceptance region *)
-    
-  Sumprob = 0.0;
-    
-  yiNlower = 0;
-    
-  dummy1 = 0.0;
-    
-  While[Sumprob ≤ (alpha/2), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower]; 
-    Sumprob = Sumprob + dummy1; yiNlower = yiNlower + 1;];
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
 
- yiNlower = yiNlower - 1;
-    
-  dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower];
-    
-  Sumprob = Sumprob - dummy1;
-    
-    
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
 
-  (* Second, determine upper bound of acceptance region *)
-    
-  Sumprob2 = 1.0;
-    
-  yiNupper = 2*NN;
-    
-  While[Sumprob2 ≥ (1 - (alpha/2)), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper]; 
-    Sumprob2 = Sumprob2 - dummy1; yiNupper = yiNupper - 1;];
-    
-  yiNupper = yiNupper + 1;
-    
-  dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper];
-    
-  Sumprob2 = Sumprob2 + dummy1;
-    
-    
-    
-  (* Test if yiNobs is in acceptance region *)
-    
-  TestyiNobs = (yiNobs ≥ yiNlower) && (yiNobs ≤ yiNupper);
-    
-  Output = {yiNlower, yiNupper, TestyiNobs};
-    
-    
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing
+the word CacheID, otherwise Mathematica-compatible applications may
+try to use invalid cache data.
 
-  Return[Output];
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
 
-    
-    
-];
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+*******************************************************************)
 
-(* Example Run and Outputs *)
-AcceptanceRegion[1000, 30, 0.625, 0.25, 50, 0.05] // Timing
-{0.089199 Second, {33, 42, False}}
+(*CacheID: 232*)
 
 
-(* M is the population size;
-  
-  NN is the sample size;
-  
-  yiNobs is the observed number of copies of allele Ai in the sample;
-  
-  alpha is the significance level *)
-CIforpiCasePiiUnknown[M_, NN_, yiNobs_, alpha_]:=
-  
-Module[{Output, pi0List, Pii0List, j, pi0, Pii0, k, Output1, Output2, piCIlowerlimit, piCIupperlimit,   
-  PiiCIlowerlimit, PiiCIupperlimit, largestalphaList, Outputcounter, alphaMax, alphaMaxIndex},
-    
-  
-     
-  Output = {};
-    
-  pi0List = {};
-    
-  Pii0List = {};
-    
-    
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[     41227,        802]*)
+(*NotebookOutlinePosition[     41863,        824]*)
+(*  CellTagsIndexPosition[     41819,        820]*)
+(*WindowFrame->Normal*)
 
-  (* Loop over all possible values of pi, denoted by pi0 *)
-    
-  For[j = 0, j ≤ (2*M), j++,
-      
-    pi0 = j/(2*M);
-      
-    (* Only go further if constraints on pi0 are met. *)
-      
-    If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
 
-     (* Loop over all possible values of Pii, denoted by Pii0 *)
-        
-      For[k = 0, k ≤ j, k++,
-          
-        Pii0 = k/(2*M);
-          
-        (* Only go further if constraints on Pii0 are met. *)
-          
-        If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0),
+
+Notebook[{
+Cell[BoxData[
+    RowBox[{
+      StyleBox[\( (*\ 
+          M\ is\ the\ population\ size; \[IndentingNewLine]NN\ is\ the\ \
+sample\ size; \[IndentingNewLine]pi\ is\ the\ frequency\ of\ allele\ Ai\ in\ \
+the\ population; \[IndentingNewLine]Pii\ is\ the\ frequency\ of\ homozygotes\ \
+with\ allele\ Ai\ in\ the\ population; \[IndentingNewLine]yiN\ is\ a\ \
+particular\ value\ of\ the\ number\ of\ copies\ of\ allele\ Ai\ in\ the\ \
+sample\ *) \),
+        FontColor->RGBColor[1, 0, 0]], "\[IndentingNewLine]", 
+      RowBox[{
+        RowBox[{\(pmfSamplingDistYiN[M_, NN_, pi_, Pii_, yiN_]\), ":=", 
+          "\[IndentingNewLine]", 
+          RowBox[{"Module", "[", 
             
-          (* For given pi0 and Pii0, test if yiNobs is in acceptance region;
+            RowBox[{\({Maxfunc, Minfunc, Lowerbound, Upperbound, Numerator1, 
+                Summand, Prob, xii}\), ",", "\[IndentingNewLine]", 
+              "\[IndentingNewLine]", 
               
-            if so, append pi0 and Pii0 to pi0list 
-              and Pii0list respectively *)
+              StyleBox[\( (*\ 
+                  The\ lower\ and\ upper\ bounds\ for\ xii\ are\ specified\ \
+according\ to\ equation\ \((8)\)\ *) \),
+                FontColor->RGBColor[1, 0, 0]], "\[IndentingNewLine]", 
               
-          Output1 = AcceptanceRegion[M, NN, pi0, Pii0, yiNobs, alpha];
-          If[Output1[[3]] == True, AppendTo[pi0List, pi0 //N]; AppendTo[Pii0List, Pii0 //N];];
+              RowBox[{\(Maxfunc = 
+                  Max[\((yiN/2)\) - \((M*pi)\) + \((M*Pii)\), yiN - NN, 0]\), 
+                ";", "\[IndentingNewLine]", \(Minfunc = 
+                  Min[M*Pii, yiN/2, 
+                    M - NN + yiN - \((2*M*pi)\) + \((M*Pii)\)]\), ";", 
+                "\[IndentingNewLine]", \(Lowerbound = Ceiling[Maxfunc]\), ";",
+                 "\[IndentingNewLine]", \(Upperbound = Floor[Minfunc]\), ";", 
+                "\[IndentingNewLine]", 
+                
+                StyleBox[\( (*\ 
+                    P \((YiN = 
+                          yiN)\)\ is\ calculated\ according\ to\ equation\ \
+\((9)\)\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], 
+                StyleBox["\[IndentingNewLine]",
+                  FontColor->RGBColor[1, 0, 0]], 
+                
+                StyleBox[\( (*\ First, \ 
+                    numerator\ is\ \(\(computed\)\(.\)\)\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], 
+                "\[IndentingNewLine]", \(Numerator1 = 0.0\), ";", 
+                "\[IndentingNewLine]", \(For[xii = Lowerbound, 
+                  xii \[LessEqual] 
+                    Upperbound, \(xii++\), \[IndentingNewLine]Summand = 
+                    Binomial[M*Pii, xii]*
+                      Binomial[2*M*\((pi - Pii)\), yiN - \((2*xii)\)]*
+                      Binomial[M + \((M*Pii)\) - \((2*M*pi)\), 
+                        NN + xii - yiN]; \[IndentingNewLine]Numerator1 = 
+                    Numerator1 + Summand;\[IndentingNewLine]]\), ";", 
+                "\[IndentingNewLine]", 
+                
+                StyleBox[\( (*\ Second, \ 
+                    numerator\ is\ divided\ by\ denominator\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], 
+                "\[IndentingNewLine]", \(Prob = Numerator1/Binomial[M, NN]\), 
+                ";", "\[IndentingNewLine]", \(Return[Prob]\), ";"}]}], 
+            "\[IndentingNewLine]", "\[IndentingNewLine]", "]"}]}], 
+        ";"}]}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    RowBox[{
+      StyleBox[\( (*\ Example\ Run\ and\ Output\ *) \),
+        FontColor->RGBColor[1, 0, 0]], 
+      "\[IndentingNewLine]", \(pmfSamplingDistYiN[1000, 10, 0.1, 0.04, 1] // 
+        Timing\)}]], "Input"],
+
+Cell[BoxData[
+    \({0.005244000000000026`\ Second, 0.25039435532792714`}\)], "Output"]
+}, Open  ]],
+
+Cell[BoxData[
+    \(\[IndentingNewLine]\)], "Input"],
+
+Cell[BoxData[
+    RowBox[{
+      StyleBox[\( (*\ 
+          M\ is\ the\ population\ size; \[IndentingNewLine]NN\ is\ the\ \
+sample\ size; \[IndentingNewLine]pi0\ is\ a\ possible\ value\ for\ the\ \
+frequency\ of\ allele\ Ai\ in\ the\ population; \[IndentingNewLine]Pii0\ is\ \
+a\ possible\ value\ for\ the\ frequency\ of\ homozygotes\ with\ allele\ Ai\ \
+in\ the\ population; \[IndentingNewLine]yiNobs\ is\ the\ observed\ number\ of\
+\ copies\ of\ allele\ Ai\ in\ the\ sample; \[IndentingNewLine]alpha\ is\ the\ \
+significance\ level\ *) \),
+        FontColor->RGBColor[1, 0, 0]], 
+      StyleBox["\[IndentingNewLine]",
+        FontColor->RGBColor[1, 0, 0]], 
+      RowBox[{
+        RowBox[{\(AcceptanceRegion[M_, NN_, pi0_, Pii0_, yiNobs_, alpha_]\), ":=",
+           "\[IndentingNewLine]", 
+          RowBox[{"Module", "[", 
             
-          (* Regardless of whether yiNobs falls within acceptance region, pi0 and Pii0 are 
-          
+            RowBox[{\({Sumprob, yiNlower, dummy1, Sumprob2, yiNupper, 
+                TestyiNobs, Output}\), ",", "\[IndentingNewLine]", 
+              "\[IndentingNewLine]", 
+              
+              StyleBox[\( (*\ First, \ 
+                  determine\ lower\ bound\ of\ acceptance\ region\ *) \),
+                FontColor->RGBColor[1, 0, 0]], "\[IndentingNewLine]", 
+              
+              RowBox[{\(Sumprob = 0.0\), ";", 
+                "\[IndentingNewLine]", \(yiNlower = 0\), ";", 
+                "\[IndentingNewLine]", \(dummy1 = 0.0\), ";", 
+                "\[IndentingNewLine]", \(While[
+                  Sumprob \[LessEqual] \((alpha/2)\), 
+                  dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower]; 
+                  Sumprob = Sumprob + dummy1; yiNlower = yiNlower + 1;]\), 
+                ";", "\[IndentingNewLine]", \(yiNlower = yiNlower - 1\), ";", 
+                "\[IndentingNewLine]", \(dummy1 = 
+                  pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower]\), ";", 
+                "\[IndentingNewLine]", \(Sumprob = Sumprob - dummy1\), ";", 
+                "\[IndentingNewLine]", "\[IndentingNewLine]", 
+                
+                StyleBox[\( (*\ Second, \ 
+                    determine\ upper\ bound\ of\ acceptance\ region\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], 
+                "\[IndentingNewLine]", \(Sumprob2 = 1.0\), ";", 
+                "\[IndentingNewLine]", \(yiNupper = 2*NN\), ";", 
+                "\[IndentingNewLine]", \(While[
+                  Sumprob2 \[GreaterEqual] \((1 - \((alpha/2)\))\), 
+                  dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper]; 
+                  Sumprob2 = Sumprob2 - dummy1; yiNupper = yiNupper - 1;]\), 
+                ";", "\[IndentingNewLine]", \(yiNupper = yiNupper + 1\), ";", 
+                "\[IndentingNewLine]", \(dummy1 = 
+                  pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper]\), ";", 
+                "\[IndentingNewLine]", \(Sumprob2 = Sumprob2 + dummy1\), ";", 
+                "\[IndentingNewLine]", "\[IndentingNewLine]", 
+                
+                StyleBox[\( (*\ 
+                    Test\ if\ yiNobs\ is\ in\ acceptance\ region\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], 
+                "\[IndentingNewLine]", \(TestyiNobs = \((yiNobs \
+\[GreaterEqual] yiNlower)\) && \((yiNobs \[LessEqual] yiNupper)\)\), ";", 
+                "\[IndentingNewLine]", \(Output = {yiNlower, yiNupper, 
+                    TestyiNobs}\), ";", "\[IndentingNewLine]", 
+                "\[IndentingNewLine]", \(Return[Output]\), ";"}]}], 
+            "\[IndentingNewLine]", "\[IndentingNewLine]", "]"}]}], 
+        ";"}]}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    RowBox[{
+      StyleBox[\( (*\ Example\ Run\ and\ Outputs\ *) \),
+        FontColor->RGBColor[1, 0, 0]], 
+      StyleBox["\[IndentingNewLine]",
+        FontColor->RGBColor[1, 0, 
+        0]], \(AcceptanceRegion[1000, 30, 0.625, 0.25, 50, 0.05] // 
+        Timing\)}]], "Input"],
+
+Cell[BoxData[
+    \({0.08919900000000003`\ Second, {33, 42, False}}\)], "Output"]
+}, Open  ]],
+
+Cell[BoxData[
+    \(\[IndentingNewLine]\)], "Input"],
+
+Cell[BoxData[
+    RowBox[{
+      StyleBox[\( (*\ 
+          M\ is\ the\ population\ size; \[IndentingNewLine]NN\ is\ the\ \
+sample\ size; \[IndentingNewLine]yiNobs\ is\ the\ observed\ number\ of\ \
+copies\ of\ allele\ Ai\ in\ the\ sample; \[IndentingNewLine]alpha\ is\ the\ \
+significance\ level\ *) \),
+        FontColor->RGBColor[1, 0, 0]], 
+      StyleBox["\[IndentingNewLine]",
+        FontColor->RGBColor[1, 0, 0]], 
+      RowBox[{
+        RowBox[{\(CIforpiCasePiiUnknown[M_, NN_, yiNobs_, alpha_]\), ":=", 
+          "\[IndentingNewLine]", 
+          RowBox[{"Module", "[", 
+            
+            RowBox[{\({Output, pi0List, Pii0List, j, pi0, Pii0, k, Output1, 
+                Output2, piCIlowerlimit, piCIupperlimit, PiiCIlowerlimit, 
+                PiiCIupperlimit, largestalphaList, Outputcounter, alphaMax, 
+                alphaMaxIndex}\), ",", "\[IndentingNewLine]", 
+              "\[IndentingNewLine]", 
+              
+              RowBox[{\(Output = {}\), ";", 
+                "\[IndentingNewLine]", \(pi0List = {}\), ";", 
+                "\[IndentingNewLine]", \(Pii0List = {}\), ";", 
+                "\[IndentingNewLine]", "\[IndentingNewLine]", 
+                
+                StyleBox[\( (*\ Loop\ over\ all\ possible\ values\ of\ pi, \ 
+                    denoted\ by\ pi0\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], "\[IndentingNewLine]", 
+                RowBox[{"For", "[", 
+                  
+                  RowBox[{\(j = 0\), ",", \(j \[LessEqual] \((2*M)\)\), 
+                    ",", \(j++\), ",", "\[IndentingNewLine]", 
+                    RowBox[{\(pi0 = j/\((2*M)\)\), ";", 
+                      StyleBox["\[IndentingNewLine]",
+                        FontColor->RGBColor[1, 0, 0]], 
+                      
+                      StyleBox[\( (*\ 
+                          Only\ go\ further\ if\ constraints\ on\ pi0\ are\ \
+\(\(met\)\(.\)\)\ *) \),
+                        FontColor->RGBColor[1, 0, 0]], 
+                      StyleBox["\[IndentingNewLine]",
+                        FontColor->RGBColor[1, 0, 0]], 
+                      RowBox[{"If", "[", 
+                        
+                        RowBox[{\(\((pi0 \[GreaterEqual] \((yiNobs/\((2*
+                                        
+                                        M)\))\))\) && \((pi0 \[LessEqual] \
+\((1 - \((\((\((2*NN)\) - yiNobs)\)/\((2*M)\))\))\))\)\), ",", 
+                          "\[IndentingNewLine]", 
+                          
+                          StyleBox[\( (*\ 
+                              Loop\ over\ all\ possible\ values\ of\ Pii, \ 
+                              denoted\ by\ Pii0\ *) \),
+                            FontColor->RGBColor[1, 0, 0]], 
+                          "\[IndentingNewLine]", 
+                          RowBox[{
+                            RowBox[{"For", "[", 
+                              
+                              RowBox[{\(k = 0\), ",", \(k \[LessEqual] j\), 
+                                ",", \(k++\), ",", "\[IndentingNewLine]", 
+                                
+                                RowBox[{\(Pii0 = k/\((2*M)\)\), ";", 
+                                  "\[IndentingNewLine]", 
+                                  
+                                  StyleBox[\( (*\ 
+                                      Only\ go\ further\ if\ constraints\ on\ \
+Pii0\ are\ \(\(met\)\(.\)\)\ *) \),
+                                    FontColor->RGBColor[1, 0, 0]], 
+                                  "\[IndentingNewLine]", 
+                                  RowBox[{"If", "[", 
+                                    
+                                    RowBox[{\(\((Pii0 \[GreaterEqual] 
+                                        Max[0, \((2*pi0)\) - 
+                                        1])\) && \((Pii0 \[LessEqual] 
+                                        pi0)\)\), ",", "\[IndentingNewLine]", 
+                                      
+                                      
+                                      StyleBox[\( (*\ 
+                                        For\ given\ pi0\ and\ Pii0, \ 
+                                        test\ if\ yiNobs\ is\ in\ acceptance\ \
+region; \[IndentingNewLine]if\ so, \ 
+                                        append\ pi0\ and\ Pii0\ to\ pi0list\ \
+and\ Pii0list\ respectively\ *) \),
+                                        FontColor->RGBColor[1, 0, 0]], 
+                                      "\[IndentingNewLine]", 
+                                      
+                                      RowBox[{\(Output1 = 
+                                        AcceptanceRegion[M, NN, pi0, Pii0, 
+                                        yiNobs, alpha]\), ";", 
+                                        "\[IndentingNewLine]", \(If[
+                                        Output1[\([3]\)] \[Equal] True, 
+                                        AppendTo[pi0List, pi0 // N]; 
+                                        AppendTo[Pii0List, Pii0 // N];]\), 
+                                        ";", "\[IndentingNewLine]", 
+                                        
+                                        StyleBox[\( (*\ 
+                                        Regardless\ of\ whether\ yiNobs\ \
+falls\ within\ acceptance\ region, \ 
+                                        pi0\ and\ Pii0\ are\ \
+\[IndentingNewLine]appended\ to\ Output\ together\ with\ Output1\  - \ 
+                                        
+                                        this\ is\ used\ in\ below\ code\ if\
+\[IndentingNewLine]necessary\ *) \),
+                                        FontColor->RGBColor[1, 0, 0]], 
+                                        "\[IndentingNewLine]", \(Output2 = 
+                                        Join[{pi0 // N, Pii0 // N}, 
+                                        Output1]\), ";", 
+                                        "\[IndentingNewLine]", \(AppendTo[
+                                        Output, Output2]\), ";"}]}], 
+                                    "\[IndentingNewLine]", "]"}], ";"}]}], 
+                              "\[IndentingNewLine]", "]"}], ";"}]}], 
+                        "\[IndentingNewLine]", "]"}], ";"}]}], 
+                  "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+                "\[IndentingNewLine]", 
+                
+                StyleBox[\( (*\ 
+                    If\ there\ is\ at\ least\ one\ pair\ of\ pi0\ and\ Pii0\ \
+for\ which\ yiNobs\ falls\ within\ corresponding\[IndentingNewLine]acceptance\
+\ region, \ then\ CI' 
+                      s\ for\ pi\ and\ Pii\ are\ defined\ according\ to\ \
+equations\ \((14  a)\)\ and\ \((14  b)\)\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], 
+                "\[IndentingNewLine]", \(If[
+                  Length[pi0List] > 0, \ \[IndentingNewLine]piCIlowerlimit = 
+                    Min[pi0List]; \[IndentingNewLine]piCIupperlimit = 
+                    Max[pi0List]; \[IndentingNewLine]PiiCIlowerlimit = 
+                    Min[Pii0List]; \[IndentingNewLine]PiiCIupperlimit = 
+                    Max[Pii0List];\[IndentingNewLine]]\), ";", 
+                "\[IndentingNewLine]", "\[IndentingNewLine]", 
+                
+                StyleBox[\( (*\ 
+                    If\ there\ are\ no\ pairs\ of\ pi0\ and\ Pii0\ for\ which\
+\ yiNobs\ falls\ within\ corresponding\[IndentingNewLine]acceptance\ region, \
+\ then\ alpha\ is\ decreased\ until\ yiNobs\ falls\ within\ one\ \
+\[IndentingNewLine]acceptance\ region\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], "\[IndentingNewLine]", 
+                RowBox[{"If", "[", 
+                  
+                  RowBox[{\(Length[pi0List] \[Equal] 0\), ",", " ", 
+                    "\[IndentingNewLine]", 
                     
-            appended to Output together with Output1 - this is used in below code if necessary *)
-            
-          Output2 = Join[{pi0 //N, Pii0 //N}, Output1];
-            
-          AppendTo[Output, Output2];
-
-       ];
-          
-      ];
-        
-    ];
-      
-  ];
-    
-    
-
-  (* If there is at least one pair of pi0 and Pii0 for which yiNobs falls within corresponding
-        
-    acceptance region, then CI's for pi and Pii are defined according to equations (14a) and (14b) *)
-    
-  If[Length[pi0List] > 0, 
-      
-    piCIlowerlimit = Min[pi0List];
-      
-    piCIupperlimit = Max[pi0List];
-      
-    PiiCIlowerlimit = Min[Pii0List];
-      
-    PiiCIupperlimit = Max[Pii0List];
-      
-  ];
-    
-    
-
-  (* If there are no pairs of pi0 and Pii0 for which yiNobs falls within corresponding acceptance 
-    region, then alpha is decreased until yiNobs falls within one acceptance region *)
-      
-  If[Length[pi0List] == 0, 
-      
-    (* Loop over all pi0 and Pii0 again and for each pair that meet the constraints, determine 
-      largest alpha value for which yiNobs falls within acceptance region *)
-      
-    (* largestalphaList is list of largest alpha's needed to cover yiNobs's. *)
-      
-    largestalphaList = {};
-      
-    Outputcounter = 1;
-      
-    For[j = 1, j ≤ (2*M), j++,
-      pi0 = j/(2*M);
-        
-      If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
-
-       For[k = 0, k ≤ j, k++,
-
-         Pii0 = k/(2*M);
-            
-          If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0),
-              
-            (* Calculate alpha value needed to cover yiNobs.
-           
-                                 
-              There are two subcases, yiNobs below and above acceptance region. *)
-              
-            If[yiNobs < Output[[Outputcounter, 3]],
-                
-              Sumprob = 0.0;
-                
-              For[m = 0, m ≤ (yiNobs - 1), m++,
-             
-                     
-                Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
+                    StyleBox[\( (*\ 
+                        Loop\ over\ all\ pi0\ and\ Pii0\ again\ and\ for\ \
+each\ pair\ that\ meet\ the\ constraints, \[IndentingNewLine]determine\ \
+largest\ alpha\ value\ for\ which\ yiNobs\ falls\ within\ acceptance\ region\ \
+*) \),
+                      FontColor->RGBColor[1, 0, 0]], 
+                    StyleBox["\[IndentingNewLine]",
+                      FontColor->RGBColor[1, 0, 0]], 
                     
-              ];
-                
-              AppendTo[largestalphaList, Sumprob*2];
-
-           ];
-              
-            If[yiNobs > Output[[Outputcounter, 4]],
-
-             Sumprob2 = 0.0;
-                
-              For[m = (2*NN), m ≥ (yiNobs + 1), m--,
-                Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
+                    StyleBox[\( (*\ 
+                        largestalphaList\ is\ list\ of\ largest\ alpha' 
+                          s\ needed\ to\ cover\ yiNobs' \(\(s\)\(.\)\)\ *) \),
+                      
+                      FontColor->RGBColor[1, 0, 0]], "\[IndentingNewLine]", 
                     
-              ];
+                    RowBox[{\(largestalphaList = {}\), ";", 
+                      "\[IndentingNewLine]", \(Outputcounter = 1\), ";", 
+                      "\[IndentingNewLine]", 
+                      RowBox[{"For", "[", 
+                        
+                        RowBox[{\(j = 1\), ",", \(j \[LessEqual] \((2*M)\)\), 
+                          ",", \(j++\), ",", "\[IndentingNewLine]", 
+                          
+                          RowBox[{\(pi0 = j/\((2*M)\)\), ";", 
+                            "\[IndentingNewLine]", 
+                            RowBox[{"If", "[", 
+                              
+                              RowBox[{\(\((pi0 \[GreaterEqual] \((yiNobs/\((2*
+                                        M)\))\))\) && \((pi0 \[LessEqual] \
+\((1 - \((\((\((2*NN)\) - yiNobs)\)/\((2*M)\))\))\))\)\), ",", 
+                                "\[IndentingNewLine]", 
+                                RowBox[{
+                                  RowBox[{"For", "[", 
+                                    
+                                    RowBox[{\(k = 0\), 
+                                      ",", \(k \[LessEqual] j\), ",", \(k++\),
+                                       ",", "\[IndentingNewLine]", 
+                                      
+                                      RowBox[{\(Pii0 = k/\((2*M)\)\), ";", 
+                                        "\[IndentingNewLine]", 
+                                        RowBox[{"If", "[", 
+                                        
+                                        RowBox[{\(\((Pii0 \[GreaterEqual] 
+                                        Max[0, \((2*pi0)\) - 
+                                        1])\) && \((Pii0 \[LessEqual] 
+                                        pi0)\)\), ",", "\[IndentingNewLine]", 
+                                        
+                                        
+                                        StyleBox[\( (*\ 
+                                        Calculate\ alpha\ value\ needed\ to\ \
+cover\ yiNobs . \[IndentingNewLine]There\ are\ two\ subcases, \ 
+                                        yiNobs\ below\ and\ above\ acceptance\
+\ \(\(region\)\(.\)\)\ *) \),
+                                        FontColor->RGBColor[1, 0, 0]], 
+                                        "\[IndentingNewLine]", \(If[
+                                        yiNobs < Output[\([Outputcounter, 
+                                        3]\)], \[IndentingNewLine]Sumprob = 
+                                        0.0; \[IndentingNewLine]For[m = 0, 
+                                        m \[LessEqual] \((yiNobs - 
+                                        1)\), \(m++\), \
+\[IndentingNewLine]\(Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, 
+                                        pi0[\([j]\)], Pii0[\([j]\)], 
+                                        m];\)\[IndentingNewLine]]; \
+\[IndentingNewLine]AppendTo[largestalphaList, 
+                                        Sumprob*2];\[IndentingNewLine]]; \
+\[IndentingNewLine]If[yiNobs > Output[\([Outputcounter, 
+                                        4]\)], \[IndentingNewLine]Sumprob2 = 
+                                        0.0; \[IndentingNewLine]For[
+                                        m = \((2*NN)\), 
+                                        m \[GreaterEqual] \((yiNobs + 
+                                        1)\), \(m--\), \
+\[IndentingNewLine]\(Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, 
+                                        pi0[\([j]\)], Pii0[\([j]\)], 
+                                        m];\)\[IndentingNewLine]]; \
+\[IndentingNewLine]AppendTo[largestalphaList, 
+                                        Sumprob2*2];\[IndentingNewLine]]; \
+\[IndentingNewLine]Outputcounter = Outputcounter + 1;\)}], 
+                                        "\[IndentingNewLine]", "]"}], ";"}]}],
+                                     "\[IndentingNewLine]", "]"}], ";"}]}], 
+                              "\[IndentingNewLine]", "]"}], ";"}]}], 
+                        "\[IndentingNewLine]", "]"}], ";", 
+                      "\[IndentingNewLine]", 
+                      
+                      StyleBox[\( (*\ From\ largestalphaList, \ 
+                          find\ largest\ value, \ 
+                          representing\ largest\ alpha\ for\ which\
+\[IndentingNewLine]yiNobs\ falls\ within\ an\ acceptance\ region, \ 
+                          considering\ all\ possible\ values\ of\ pi\
+\[IndentingNewLine]and\ Pii\ *) \),
+                        FontColor->RGBColor[1, 0, 0]], 
+                      StyleBox["\[IndentingNewLine]",
+                        FontColor->RGBColor[1, 0, 0]], \(alphaMax = \(-1\)\), 
+                      ";", "\[IndentingNewLine]", \(alphaMaxIndex = \(-1\)\), 
+                      ";", "\[IndentingNewLine]", \(For[j = 1, 
+                        j \[LessEqual] 
+                          Length[
+                            largestalphaList], \(j++\), \
+\[IndentingNewLine]\(If[largestalphaList[\([j]\)] > alphaMax, 
+                            alphaMax = largestalphaList[\([j]\)]; 
+                            alphaMaxIndex = j];\)\[IndentingNewLine]]\), ";", 
+                      "\[IndentingNewLine]", 
+                      
+                      StyleBox[\( (*\ 
+                          Define\ lower\ and\ upper\ limits\ for\ pi\ and\ \
+Pii\ given\ largest\ alpha\ *) \),
+                        FontColor->RGBColor[1, 0, 0]], 
+                      "\[IndentingNewLine]", \(piCIlowerlimit = 
+                        Output[\([alphaMaxIndex, 1]\)]\), ";", 
+                      "\[IndentingNewLine]", \(piCIupperlimit = 
+                        Output[\([alphaMaxIndex, 1]\)]\), ";", 
+                      "\[IndentingNewLine]", \(PiiCIlowerlimit = 
+                        Output[\([alphaMaxIndex, 2]\)]\), ";", 
+                      "\[IndentingNewLine]", \(PiiCIupperlimit = 
+                        Output[\([alphaMaxIndex, 2]\)]\), ";"}]}], 
+                  StyleBox["\[IndentingNewLine]",
+                    FontColor->RGBColor[1, 0, 0]], "]"}], ";", 
+                "\[IndentingNewLine]", 
+                StyleBox["\[IndentingNewLine]",
+                  FontColor->RGBColor[1, 0, 
+                  0]], \(Return[{{piCIlowerlimit, 
+                      piCIupperlimit}, {PiiCIlowerlimit, PiiCIupperlimit}}]\),
+                 ";"}]}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+            "]"}]}], ";"}]}]], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    RowBox[{
+      StyleBox[\( (*\ Example\ Run\ and\ Outputs\ *) \),
+        FontColor->RGBColor[1, 0, 0]], 
+      StyleBox["\[IndentingNewLine]",
+        FontColor->RGBColor[1, 0, 
+        0]], \(CIforpiCasePiiUnknown[100, 30, 5, 0.05] // Timing\)}]], "Input"],
+
+Cell[BoxData[
+    \({268.67807899999997`\ Second, {{0.025`, 0.2`}, {0.`, 
+          0.195`}}}\)], "Output"]
+}, Open  ]],
+
+Cell[BoxData[
+    \(\[IndentingNewLine]\)], "Input"],
+
+Cell[BoxData[
+    RowBox[{
+      StyleBox[\( (*\ 
+          M\ is\ the\ population\ size; \[IndentingNewLine]NN\ is\ the\ \
+sample\ size; \[IndentingNewLine]yiNobs\ is\ the\ observed\ number\ of\ \
+copies\ of\ allele\ Ai\ in\ the\ sample; \[IndentingNewLine]alpha\ is\ the\ \
+significance\ level\ *) \),
+        FontColor->RGBColor[1, 0, 0]], 
+      StyleBox["\[IndentingNewLine]",
+        FontColor->RGBColor[1, 0, 0]], 
+      RowBox[{
+        RowBox[{\(CIforpiCasePiiKnown[M_, NN_, yiNobs_, alpha_]\), ":=", 
+          "\[IndentingNewLine]", 
+          RowBox[{"Module", "[", 
+            
+            RowBox[{\({Output, pi0List, j, pi0, Pii0, Output1, Output2, 
+                piCIlowerlimit, piCIupperlimit, largestalphaList, 
+                Outputcounter, alphaMax, alphaMaxIndex}\), ",", 
+              "\[IndentingNewLine]", "\[IndentingNewLine]", 
+              
+              RowBox[{\(Output = {}\), ";", 
+                "\[IndentingNewLine]", \(pi0List = {}\), ";", 
+                "\[IndentingNewLine]", "\[IndentingNewLine]", 
+                RowBox[{"For", "[", 
+                  
+                  RowBox[{\(j = 0\), ",", \(j \[LessEqual] \((2*M)\)\), 
+                    ",", \(j++\), ",", "\[IndentingNewLine]", 
+                    RowBox[{\(pi0 = j/\((2*M)\)\), ";", 
+                      StyleBox["\[IndentingNewLine]",
+                        FontColor->RGBColor[1, 0, 0]], 
+                      RowBox[{"If", "[", 
+                        
+                        RowBox[{\(\((pi0 \[GreaterEqual] \((yiNobs/\((2*
+                                        M)\))\))\) && \((pi0 \[LessEqual] \
+\((1 - \((\((\((2*NN)\) - yiNobs)\)/\((2*M)\))\))\))\)\), ",", 
+                          "\[IndentingNewLine]", 
+                          StyleBox[\( (*\ Max\ homozygosity\ case\ *) \),
+                            FontColor->RGBColor[1, 0, 0]], 
+                          "\[IndentingNewLine]", 
+                          
+                          RowBox[{\(Pii0 = pi0\), ";", "\[IndentingNewLine]", 
+                            
+                            
+                            StyleBox[\( (*\ 
+                                Replace\ with\ Pii0 = 
+                                  pi0^2\ for\ HWE\ case\ *) \),
+                              FontColor->RGBColor[1, 0, 0]], 
+                            "\[IndentingNewLine]", 
+                            StyleBox[
+                              RowBox[{"(*", " ", 
+                                RowBox[{
+                                  StyleBox[\(Replace\ with\ Pii0\),
+                                    FontColor->RGBColor[1, 0, 0]], 
+                                  StyleBox["=",
+                                    FontColor->RGBColor[1, 0, 
+                                    0]], \(Max[
+                                      0, \((2*pi0)\) - 
+                                        1]\ for\ Min\ homozygosity\ case\)}], 
+                                " ", "*)"}],
+                              FontColor->RGBColor[1, 0, 0]], 
+                            StyleBox["\[IndentingNewLine]",
+                              FontColor->RGBColor[1, 0, 0]], 
+                            
+                            StyleBox[\( (*\ 
+                                Extra\ constraint\ for\ Pii0\ to\ ensure\ \
+that\ Pii0*M, \ 
+                                the\ number\ of\ homozygotes\
+\[IndentingNewLine]in\ the\ population, \ is\ an\ integer\ *) \),
+                              FontColor->RGBColor[1, 0, 0]], 
+                            "\[IndentingNewLine]", \(If[\((Pii0 \
+\[GreaterEqual] Max[0, \((2*pi0)\) - 1])\) && \((Pii0 \[LessEqual] 
+                                    pi0)\) && \((Head[Pii0*M] \[Equal] 
+                                    Integer)\), \[IndentingNewLine]Output1 = 
+                                AcceptanceRegion[M, NN, pi0, Pii0, yiNobs, 
+                                  alpha]; \[IndentingNewLine]If[
+                                Output1[\([3]\)] \[Equal] True, 
+                                AppendTo[pi0List, 
+                                  pi0 // N]]; \[IndentingNewLine]Output2 = 
+                                Join[{pi0 // N, Pii0 // N}, 
+                                  Output1]; \[IndentingNewLine]AppendTo[
+                                Output, Output2];\[IndentingNewLine]]\), 
+                            ";"}]}], "\[IndentingNewLine]", "]"}], ";"}]}], 
+                  "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+                "\[IndentingNewLine]", 
                 
-              AppendTo[largestalphaList, Sumprob2*2];
+                StyleBox[\( (*\ 
+                    If\ there\ is\ at\ least\ one\ pair\ of\ pi0\ and\ Pii0\ \
+for\ which\ yiNobs\ falls\ within\ corresponding\[IndentingNewLine]acceptance\
+\ region, \ then\ CI' 
+                      s\ for\ pi\ and\ Pii\ are\ defined\ according\ to\ \
+equation\ \((13)\)\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], 
+                "\[IndentingNewLine]", \(If[
+                  Length[pi0List] > 0, \ \[IndentingNewLine]piCIlowerlimit = 
+                    Min[pi0List]; \[IndentingNewLine]piCIupperlimit = 
+                    Max[pi0List];\[IndentingNewLine]]\), ";", 
+                "\[IndentingNewLine]", "\[IndentingNewLine]", 
                 
-            ];
-              
-            Outputcounter = Outputcounter + 1;
-              
-          ];
-            
-        ];
-          
-      ];
-        
-    ];
-      
-    (* From largestalphaList, find largest value, representing largest alpha for which yiNobs falls 
-      within an acceptance region, considering all possible values of pi and Pii *)
-      
-    alphaMax = -1;
-      
-    alphaMaxIndex = -1;
-      
-    For[j = 1, j ≤ Length[largestalphaList], j++,
+                StyleBox[\( (*\ 
+                    If\ there\ are\ no\ pairs\ of\ pi0\ and\ Pii0\ for\ which\
+\ yiNobs\ falls\ within\ corresponding\[IndentingNewLine]acceptance\ region, \
+\ then\ alpha\ is\ decreased\ until\ yiNobs\ falls\ within\ one\ \
+\[IndentingNewLine]acceptance\ region\ *) \),
+                  FontColor->RGBColor[1, 0, 0]], "\[IndentingNewLine]", 
+                RowBox[{"If", "[", 
+                  
+                  RowBox[{\(Length[pi0List] \[Equal] 0\), ",", " ", 
+                    "\[IndentingNewLine]", 
+                    
+                    RowBox[{\(largestalphaList = {}\), ";", 
+                      "\[IndentingNewLine]", \(Outputcounter = 1\), ";", 
+                      "\[IndentingNewLine]", 
+                      RowBox[{"For", "[", 
+                        
+                        RowBox[{\(j = 1\), ",", \(j \[LessEqual] \((2*M)\)\), 
+                          ",", \(j++\), ",", "\[IndentingNewLine]", 
+                          
+                          RowBox[{\(pi0 = j/\((2*M)\)\), ";", 
+                            "\[IndentingNewLine]", 
+                            RowBox[{"If", "[", 
+                              
+                              RowBox[{\(\((pi0 \[GreaterEqual] \((yiNobs/\((2*
+                                        M)\))\))\) && \((pi0 \[LessEqual] \
+\((1 - \((\((\((2*NN)\) - yiNobs)\)/\((2*M)\))\))\))\)\), ",", 
+                                "\[IndentingNewLine]", 
+                                
+                                StyleBox[\( (*\ 
+                                    Max\ homozygosity\ case\ *) \),
+                                  FontColor->RGBColor[1, 0, 0]], 
+                                "\[IndentingNewLine]", 
+                                
+                                RowBox[{\(Pii0 = pi0\), ";", 
+                                  "\[IndentingNewLine]", 
+                                  
+                                  StyleBox[\( (*\ 
+                                      Replace\ with\ Pii0 = 
+                                        pi0^2\ for\ HWE\ case\ *) \),
+                                    FontColor->RGBColor[1, 0, 0]], 
+                                  "\[IndentingNewLine]", 
+                                  StyleBox[
+                                    RowBox[{"(*", " ", 
+                                      RowBox[{
+                                        StyleBox[\(Replace\ with\ Pii0\),
+                                        FontColor->RGBColor[1, 0, 0]], 
+                                        StyleBox["=",
+                                        FontColor->RGBColor[1, 0, 
+                                        0]], \(Max[
+                                        0, \((2*pi0)\) - 
+                                        1]\ for\ Min\ homozygosity\ case\)}], 
+                                      " ", "*)"}],
+                                    FontColor->RGBColor[1, 0, 0]], 
+                                  "\[IndentingNewLine]", \(If[\((Pii0 \
+\[GreaterEqual] Max[0, \((2*pi0)\) - 1])\) && \((Pii0 \[LessEqual] 
+                                        pi0)\) && \((Head[Pii0*M] \[Equal] 
+                                        Integer)\), \[IndentingNewLine]If[
+                                      yiNobs < 
+                                        Output[\([Outputcounter, 
+                                        3]\)], \[IndentingNewLine]Sumprob = 
+                                        0.0; \[IndentingNewLine]For[m = 0, 
+                                        m \[LessEqual] \((yiNobs - 
+                                        1)\), \(m++\), \
+\[IndentingNewLine]\(Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, 
+                                        pi0[\([j]\)], Pii0[\([j]\)], 
+                                        m];\)\[IndentingNewLine]]; \
+\[IndentingNewLine]AppendTo[largestalphaList, 
+                                        Sumprob*2];\[IndentingNewLine]]; \
+\[IndentingNewLine]If[yiNobs > Output[\([Outputcounter, 
+                                        4]\)], \[IndentingNewLine]Sumprob2 = 
+                                        0.0; \[IndentingNewLine]For[
+                                        m = \((2*NN)\), 
+                                        m \[GreaterEqual] \((yiNobs + 
+                                        1)\), \(m--\), \
+\[IndentingNewLine]\(Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, 
+                                        pi0[\([j]\)], Pii0[\([j]\)], 
+                                        m];\)\[IndentingNewLine]]; \
+\[IndentingNewLine]AppendTo[largestalphaList, 
+                                        Sumprob2*2];\[IndentingNewLine]]; \
+\[IndentingNewLine]Outputcounter = Outputcounter + 1;\[IndentingNewLine]]\), 
+                                  ";"}]}], "\[IndentingNewLine]", "]"}], 
+                            ";"}]}], "\[IndentingNewLine]", "]"}], ";", 
+                      "\[IndentingNewLine]", 
+                      
+                      StyleBox[\( (*\ From\ largestalphaList, \ 
+                          find\ largest\ value, \ 
+                          representing\ largest\ alpha\ for\ which\
+\[IndentingNewLine]yiNobs\ falls\ within\ an\ acceptance\ region, \ 
+                          considering\ all\ possible\ values\ of\ pi\
+\[IndentingNewLine]and\ Pii\ *) \),
+                        FontColor->RGBColor[1, 0, 0]], 
+                      StyleBox["\[IndentingNewLine]",
+                        FontColor->RGBColor[1, 0, 0]], \(alphaMax = \(-1\)\), 
+                      ";", "\[IndentingNewLine]", \(alphaMaxIndex = \(-1\)\), 
+                      ";", "\[IndentingNewLine]", \(For[j = 1, 
+                        j \[LessEqual] 
+                          Length[
+                            largestalphaList], \(j++\), \
+\[IndentingNewLine]\(If[largestalphaList[\([j]\)] > alphaMax, 
+                            alphaMax = largestalphaList[\([j]\)]; 
+                            alphaMaxIndex = j];\)\[IndentingNewLine]]\), ";", 
+                      "\[IndentingNewLine]", 
+                      
+                      StyleBox[\( (*\ 
+                          Define\ lower\ and\ upper\ limits\ for\ pi\ and\ \
+Pii\ given\ largest\ alpha\ *) \),
+                        FontColor->RGBColor[1, 0, 0]], 
+                      "\[IndentingNewLine]", \(piCIlowerlimit = 
+                        Output[\([alphaMaxIndex, 1]\)]\), ";", 
+                      "\[IndentingNewLine]", \(piCIupperlimit = 
+                        Output[\([alphaMaxIndex, 1]\)]\), ";"}]}], 
+                  StyleBox["\[IndentingNewLine]",
+                    FontColor->RGBColor[1, 0, 0]], "]"}], ";", 
+                "\[IndentingNewLine]", 
+                StyleBox["\[IndentingNewLine]",
+                  FontColor->RGBColor[1, 0, 
+                  0]], \(Return[{piCIlowerlimit, piCIupperlimit}]\), ";"}]}], 
+            "\[IndentingNewLine]", "\[IndentingNewLine]", "]"}]}], 
+        ";"}]}]], "Input"],
 
-     If[largestalphaList[[j]] > alphaMax, alphaMax = largestalphaList[[j]]; alphaMaxIndex = j];
-          
-    ];
-      
-    (* Define lower and upper limits for pi and Pii given largest alpha *)
-      
-    piCIlowerlimit = Output[[alphaMaxIndex, 1]];
-      
-    piCIupperlimit = Output[[alphaMaxIndex, 1]];
-      
-    PiiCIlowerlimit = Output[[alphaMaxIndex, 2]];
-      
-    PiiCIupperlimit = Output[[alphaMaxIndex, 2]];
-      
-  ];
-    
-    
+Cell[CellGroupData[{
 
-  Return[{{piCIlowerlimit, piCIupperlimit}, {PiiCIlowerlimit, PiiCIupperlimit}}];
-    
-    
+Cell[BoxData[
+    RowBox[{
+      StyleBox[\( (*\ Example\ Run\ and\ Outputs\ *) \),
+        FontColor->RGBColor[1, 0, 0]], 
+      StyleBox["\[IndentingNewLine]",
+        FontColor->RGBColor[1, 0, 
+        0]], \(CIforpiCasePiiKnown[438, 53, 1, 0.05/3] // Timing\)}]], "Input"],
 
-];
- 
-(* Example Run and Outputs *)
-CIforpiCasePiiUnknown[100, 30, 5, 0.05] // Timing
-{268.678 Second, {{0.025, 0.2}, {0., 0.195}}}
+Cell[BoxData[
+    \({8.967023000000001`\ Second, {0.00228310502283105`, 
+        0.07990867579908675`}}\)], "Output"]
+}, Open  ]],
 
+Cell[BoxData[
+    \(\[IndentingNewLine]\)], "Input"],
 
-(* M is the population size;
-  
-  NN is the sample size;
-  
-  yiNobs is the observed number of copies of allele Ai in the sample;
-  
-  alpha is the significance level *)
-CIforpiCasePiiKnown[M_, NN_, yiNobs_, alpha_]:=
-  
-Module[{Output, pi0List, j, pi0, Pii0, Output1, Output2, piCIlowerlimit, piCIupperlimit,   
-  largestalphaList, Outputcounter, alphaMax, alphaMaxIndex},
-    
-    
+Cell[BoxData[
+    RowBox[{
+      StyleBox[\( (*\ Find\ CI' s\ for\ p1, \ p2\ and\ p3, \ 
+          for\ Prasto\ population\ *) \),
+        FontColor->RGBColor[1, 0, 0]], "\[IndentingNewLine]", 
+      RowBox[{\(CIforp1Prasto = CIforpiCasePiiKnown[2*219, 53, 1, 0.05/3];\), 
+        "\[IndentingNewLine]", \(CIforp2Prasto = 
+            CIforpiCasePiiKnown[2*219, 53, 80, 0.05/3];\), 
+        "\[IndentingNewLine]", \(CIforp3Prasto = 
+            CIforpiCasePiiKnown[2*219, 53, 24, 0.05/3];\), 
+        StyleBox["\[IndentingNewLine]",
+          FontColor->RGBColor[1, 0, 0]], 
+        StyleBox[\( (*\ Find\ CI' s\ for\ q1, \ q2\ and\ q3, \ 
+            for\ Finstrom\ population\ *) \),
+          FontColor->RGBColor[1, 0, 0]], 
+        "\[IndentingNewLine]", \(CIforq1Finstrom = 
+            CIforpiCasePiiKnown[7*219, 74, 4, 0.05/3];\), 
+        "\[IndentingNewLine]", \(CIforq2Finstrom = 
+            CIforpiCasePiiKnown[7*219, 74, 123, 0.05/3];\), 
+        "\[IndentingNewLine]", \(CIforq3Finstrom = 
+            CIforpiCasePiiKnown[7*219, 74, 4, 0.05/3];\), 
+        "\[IndentingNewLine]", 
+        StyleBox[\( (*\ Define\ Jost' s\ D\ *) \),
+          FontColor->RGBColor[1, 0, 0]], 
+        "\[IndentingNewLine]", \(plist = {p1, p2, p3, 1 - p1 - p2 - p3};\), 
+        "\[IndentingNewLine]", \(qlist = {q1, q2, q3, 1 - q1 - q2 - q3};\), 
+        "\[IndentingNewLine]", \(JostS = \((Sum[
+                    plist[\([k]\)]*plist[\([k]\)], {k, 1, 4}] + 
+                  Sum[qlist[\([k]\)]*qlist[\([k]\)], {k, 1, 4}])\)/2;\), 
+        "\[IndentingNewLine]", \(JostT = 
+            Sum[\((\((plist[\([k]\)] + qlist[\([k]\)])\)/2)\)^2, {k, 1, 
+                4}];\), 
+        "\[IndentingNewLine]", \(JostD = \((\((JostT/JostS)\) - 
+                  1)\)/\((\((1/2)\) - 1)\);\), "\[IndentingNewLine]", 
+        StyleBox[\( (*\ Find\ lower\ bound\ of\ CI\ for\ Jost' s\ D\ *) \),
+          FontColor->RGBColor[1, 0, 0]], 
+        "\[IndentingNewLine]", \(Minimize[
+          JostD, \((p1 > CIforp1Prasto[\([1]\)])\) && \((p1 < 
+                CIforp1Prasto[\([2]\)])\) && \((p2 > 
+                CIforp2Prasto[\([1]\)])\) && \((p2 < 
+                CIforp2Prasto[\([2]\)])\) && \((p3 > 
+                CIforp3Prasto[\([1]\)])\) && \((p3 < 
+                CIforp3Prasto[\([2]\)])\) && \((q1 > 
+                CIforq1Finstrom[\([1]\)])\) && \((q1 < 
+                CIforq1Finstrom[\([2]\)])\) && \((q2 > 
+                CIforq2Finstrom[\([1]\)])\) && \((q2 < 
+                CIforq2Finstrom[\([2]\)])\) && \((q3 > 
+                CIforq3Finstrom[\([1]\)])\) && \((q3 < 
+                CIforq3Finstrom[\([2]\)])\) && \((p1 + p2 + p3 \[LessEqual] 
+                1)\) && \((q1 + q2 + q3 \[LessEqual] 1)\), {p1, p2, p3, q1, 
+            q2, q3}]\), "\[IndentingNewLine]", 
+        StyleBox[\( (*\ Find\ upper\ bound\ of\ CI\ for\ Jost' s\ D\ *) \),
+          FontColor->RGBColor[1, 0, 0]], 
+        "\[IndentingNewLine]", \(Maximize[
+          JostD, \((p1 > CIforp1Prasto[\([1]\)])\) && \((p1 < 
+                CIforp1Prasto[\([2]\)])\) && \((p2 > 
+                CIforp2Prasto[\([1]\)])\) && \((p2 < 
+                CIforp2Prasto[\([2]\)])\) && \((p3 > 
+                CIforp3Prasto[\([1]\)])\) && \((p3 < 
+                CIforp3Prasto[\([2]\)])\) && \((q1 > 
+                CIforq1Finstrom[\([1]\)])\) && \((q1 < 
+                CIforq1Finstrom[\([2]\)])\) && \((q2 > 
+                CIforq2Finstrom[\([1]\)])\) && \((q2 < 
+                CIforq2Finstrom[\([2]\)])\) && \((q3 > 
+                CIforq3Finstrom[\([1]\)])\) && \((q3 < 
+                CIforq3Finstrom[\([2]\)])\) && \((p1 + p2 + p3 \[LessEqual] 
+                1)\) && \((q1 + q2 + q3 \[LessEqual] 1)\), {p1, p2, p3, q1, 
+            q2, q3}]\)}]}]], "Input"]
+},
+FrontEndVersion->"5.0 for Macintosh",
+ScreenRectangle->{{0, 1280}, {0, 703}},
+WindowSize->{1268, 583},
+WindowMargins->{{0, Automatic}, {Automatic, 0}}
+]
 
-  Output = {};
-    
-  pi0List = {};
-    
-    
+(*******************************************************************
+Cached data follows.  If you edit this Notebook file directly, not
+using Mathematica, you must remove the line containing CacheID at
+the top of  the file.  The cache data will then be recreated when
+you save this file from within Mathematica.
+*******************************************************************)
 
-  For[j = 0, j ≤ (2*M), j++,
-    pi0 = j/(2*M);
-      
-    If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
-        
-      (* Max homozygosity case *)
-        
-      Pii0 = pi0;
-        
-      (* Replace with Pii0 = pi0^2 for HWE case *)
-        
-      (* Replace with Pii0 = Max[0, (2*pi0) - 1] for Min homozygosity case *)
-        
-      (* Extra constraint for Pii0 to ensure that Pii0*M, the number of homozygotes in the population,
-        is an integer *)
-        
-      If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0) && (Head[Pii0*M] == Integer),
-          
-        Output1 = AcceptanceRegion[M, NN, pi0, Pii0, yiNobs, alpha];
-          
-        If[Output1[[3]] == True, AppendTo[pi0List, pi0 //N]];
-          
-        Output2 = Join[{pi0 //N, Pii0 //N}, Output1];
-          
-        AppendTo[Output, Output2];
-          
-          
-      ];
-        
-    ];
-      
-  ];
-    
-    
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
 
-  (* If there is at least one pair of pi0 and Pii0 for which yiNobs falls within corresponding
-        
-    acceptance region, then CI's for pi and Pii are defined according to equation (13) *)
-    
-  If[Length[pi0List] > 0, 
-      
-    piCIlowerlimit = Min[pi0List];
-      
-    piCIupperlimit = Max[pi0List];
-      
-  ];
-    
-    
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
 
-  (* If there are no pairs of pi0 and Pii0 for which yiNobs falls within corresponding acceptance 
-    region, then alpha is decreased until yiNobs falls within one acceptance region *)
-    
-  If[Length[pi0List] == 0, 
-      
-    largestalphaList = {};
-      
-    Outputcounter = 1;
-      
-    For[j = 1, j ≤ (2*M), j++, 
-      pi0 = j/(2*M);
-        
-      If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
-          
-        (* Max homozygosity case *)
-          
-        Pii0 = pi0;
-          
-        (* Replace with Pii0 = pi0^2 for HWE case *)
-          
-        (* Replace with Pii0 = Max[0, (2*pi0) - 1] for Min homozygosity case *)
-          
-                     
-        If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0) && (Head[Pii0*M] == Integer),
-            
-          If[yiNobs < Output[[Outputcounter, 3]],
-              
-            Sumprob = 0.0;
-              
-            For[m = 0, m ≤ (yiNobs - 1), m++, 
-              Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
-                
-            ];
-              
-            AppendTo[largestalphaList, Sumprob*2];
-              
-          ];
-            
-          If[yiNobs > Output[[Outputcounter, 4]],
-              
-            Sumprob2 = 0.0;
-              
-            For[m = (2*NN), m ≥ (yiNobs + 1), m--,
-              Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
-                       
-            ];
-              
-            AppendTo[largestalphaList, Sumprob2*2];
-              
-          ];
-            
-          Outputcounter = Outputcounter + 1;
-            
-        ];
-          
-      ];
-        
-    ];
-      
-    (* From largestalphaList, find largest value, representing largest alpha for which
-          
-        
-      yiNobs falls within an acceptance region, considering all possible values of pi and Pii *)
-      
-    alphaMax = -1;
-      
-    alphaMaxIndex = -1;
-      
-    For[j = 1, j ≤ Length[largestalphaList], j++,
-        
-      If[largestalphaList[[j]] > alphaMax, alphaMax = largestalphaList[[j]]; alphaMaxIndex = j];
-          
-    ];
-      
-    (* Define lower and upper limits for pi and Pii given largest alpha *)
-      
-    piCIlowerlimit = Output[[alphaMaxIndex, 1]];
-      
-    piCIupperlimit = Output[[alphaMaxIndex, 1]];
-      
-  ];
-    
-    
+(*NotebookFileOutline
+Notebook[{
+Cell[1754, 51, 3112, 61, 411, "Input"],
 
-  Return[{piCIlowerlimit, piCIupperlimit}];
-    
-    
-];
+Cell[CellGroupData[{
+Cell[4891, 116, 230, 5, 43, "Input"],
+Cell[5124, 123, 87, 1, 27, "Output"]
+}, Open  ]],
+Cell[5226, 127, 52, 1, 43, "Input"],
+Cell[5281, 130, 3551, 63, 539, "Input"],
 
-(* Example Run and Outputs *)
-CIforpiCasePiiKnown[438, 53, 1, 0.05/3] // Timing
-{8.96702 Second, {0.00228311, 0.0799087}}
+Cell[CellGroupData[{
+Cell[8857, 197, 295, 7, 43, "Input"],
+Cell[9155, 206, 81, 1, 27, "Output"]
+}, Open  ]],
+Cell[9251, 210, 52, 1, 43, "Input"],
+Cell[9306, 213, 14990, 264, 1595, "Input"],
+
+Cell[CellGroupData[{
+Cell[24321, 481, 276, 6, 43, "Input"],
+Cell[24600, 489, 107, 2, 27, "Output"]
+}, Open  ]],
+Cell[24722, 494, 52, 1, 43, "Input"],
+Cell[24777, 497, 12209, 216, 1339, "Input"],
+
+Cell[CellGroupData[{
+Cell[37011, 717, 276, 6, 43, "Input"],
+Cell[37290, 725, 117, 2, 27, "Output"]
+}, Open  ]],
+Cell[37422, 730, 52, 1, 43, "Input"],
+Cell[37477, 733, 3746, 67, 395, "Input"]
+}
+]
+*)
 
 
-(* Find CI's for p1, p2 and p3, for Prasto population *)
-CIforp1Prasto = CIforpiCasePiiKnown[2*219, 53, 1, 0.05/3];
-CIforp2Prasto = CIforpiCasePiiKnown[2*219, 53, 80, 0.05/3];
-CIforp3Prasto = CIforpiCasePiiKnown[2*219, 53, 24, 0.05/3];
-(* Find CI's for q1, q2 and q3, for Finstrom population *)
-CIforq1Finstrom = CIforpiCasePiiKnown[7*219, 74, 4, 0.05/3];
-CIforq2Finstrom = CIforpiCasePiiKnown[7*219, 74, 123, 0.05/3];
-CIforq3Finstrom = CIforpiCasePiiKnown[7*219, 74, 4, 0.05/3];
-(* Define Jost's D *)
-plist = {p1, p2, p3, 1 - p1 - p2 - p3};
-qlist = {q1, q2, q3, 1 - q1 - q2 - q3};
-JostS = (Sum[plist[[k]]*plist[[k]], {k, 1, 4}] + Sum[qlist[[k]]*qlist[[k]], {k, 1, 4}])/2;
-JostT = Sum[((plist[[k]] + qlist[[k]])/2)^2, {k, 1, 4}];
-JostD = ((JostT/JostS) - 1)/((1/2) - 1);
-(* Find lower bound of CI for Jost's D *)
-Minimize[JostD, (p1 > CIforp1Prasto[[1]]) && (p1 < CIforp1Prasto[[2]]) && (p2 > CIforp2Prasto[[1]]) 
-  && (p2 < CIforp2Prasto[[2]]) && (p3 > CIforp3Prasto[[1]]) && (p3 < CIforp3Prasto[[2]]) 
-  && (q1 > CIforq1Finstrom[[1]]) && (q1 < CIforq1Finstrom[[2]]) && (q2 > CIforq2Finstrom[[1]]) 
-  && (q2 < CIforq2Finstrom[[2]]) && (q3 > CIforq3Finstrom[[1]]) && (q3 < CIforq3Finstrom[[2]]) 
-  && (p1 + p2 + p3 ≤ 1) && (q1 + q2 + q3 ≤ 1), {p1, p2, p3, q1, q2, q3}]
-(* Find upper bound of CI for Jost's D *)
-Maximize[JostD, (p1 > CIforp1Prasto[[1]]) && (p1 < CIforp1Prasto[[2]]) && (p2 > CIforp2Prasto[[1]]) 
-  && (p2 < CIforp2Prasto[[2]]) && (p3 >
-CIforp3Prasto[[1]]) && (p3 < CIforp3Prasto[[2]]) 
-  && (q1 > CIforq1Finstrom[[1]]) && (q1 < CIforq1Finstrom[[2]]) && (q2 > CIforq2Finstrom[[1]]) 
-  && (q2 < CIforq2Finstrom[[2]]) && (q3 >
-CIforq3Finstrom[[1]]) && (q3 < CIforq3Finstrom[[2]]) 
-  && (p1 + p2 + p3 ≤ 1) && (q1 + q2 + q3 ≤ 1), {p1, p2, p3, q1, q2, q3}]
+
+(*******************************************************************
+End of Mathematica Notebook file.
+*******************************************************************)
+
