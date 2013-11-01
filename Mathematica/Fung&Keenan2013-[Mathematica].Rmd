@@ -1,3 +1,17 @@
+<style type="text/css">
+pre {        
+   margin-top: -1;
+   max-width: 95%;
+   border: none;
+   white-space: pre-wrap;
+}
+pre code {
+   padding-top: -1em;
+   display: block; padding: 0.5em;
+   background-color: #F8F8F8;
+}
+</style>
+
 <center>
 Fung & Keenan 2013: Description of _Mathematica_ programs used to calculate  confidence intervals
 ========================================================
@@ -15,6 +29,15 @@ Tak Fung^1,2 and Kevin Keenan^3
 </center>
 </h6>
 
+```{r, echo=FALSE}
+opts_chunk$set(comment = "",
+               tidy = FALSE,
+               use.highlight = TRUE)
+options(digits = 6)
+```
+
+
+
 ## Introduction
 This document describes the functionality of the _Mathematica_ code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1]. This document describes four separate programs named, `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiknown`.
 A `R` version of the code and examples can be found @ http://rpubs.com/kkeenan02/Fung-Keenan-R.
@@ -23,555 +46,348 @@ A `R` version of the code and examples can be found @ http://rpubs.com/kkeenan02
 This program returns $P(Y_{i,N} = y_{i,N})$ as specified by equation (9) in the main text, given $M$, $N$, $p_{i}$, $P_{ii}$ and $y_{i,n}$. Here, $Y_{i,N}$ is the random variable specifying the number of copies of allele $A_{i}$ in a sample of size $N$ taken from a finite diploid population of size $M$, with the frequency of allele $A_{i}$ in the population being $p_{i}$ and the frequency of homozygotes of allele $A_{i}$ in the population being $P_{ii}$.
 
 ### pmfSamplingDistYiN source code (_Mathematica_)
-```
+
+
+<pre><code><font color="red">
 (* M is the population size;
   NN is the sample size;
-  
   pi is the frequency of allele Ai in the population;
   Pii is the frequency of homozygotes with allele Ai in the population;
   yiN is a particular value of the number of copies of allele Ai in the sample *)
-pmfSamplingDistYiN[M_, NN_, pi_, Pii_, yiN _]:=
-  
+</font>
+pmfSamplingDistYiN[M_, NN_, pi_, Pii_, yiN_]:=
 Module[{Maxfunc, Minfunc, Lowerbound, Upperbound, Numerator1, Summand, Prob, xii},
-    
-    
 
-  (* The lower and upper bounds for xii are specified according to equation (8) *)
-    
+<font color="red">  (* The lower and upper bounds for xii are specified according to equation (8) *) </font>
   Maxfunc = Max[(yiN/2) - (M*pi) + (M*Pii), yiN - NN, 0];
-    
   Minfunc = Min[M*Pii, yiN/2, M - NN + yiN - (2*M*pi) + (M*Pii)];
-    
   Lowerbound = Ceiling[Maxfunc];
-    
   Upperbound = Floor[Minfunc];
-    
 
-  (* P(YiN = yiN) is calculated according to equation (9) *)
-    
-  (* First, numerator is computed. *)
-    
+<font color="red">  (* P(YiN = yiN) is calculated according to equation (9) *)
+  (* First, numerator is computed. *)</font>
   Numerator1 = 0.0;
-    
-  For[xii = Lowerbound, xii ≤ Upperbound, xii++,
-      
-    Summand = Binomial[M*Pii, xii]*Binomial[2*M*(pi - Pii), yiN - (2*xii)]*Binomial[M + (M*Pii) -  
+  For[xii = Lowerbound, xii &le; Upperbound, xii++,
+    Summand = Binomial[M*Pii, xii]*Binomial[2*M*(pi - Pii), yiN - (2*xii)] *Binomial[M + (M*Pii) -  
       (2*M*pi), NN + xii - yiN];
-      
     Numerator1 = Numerator1 + Summand;
-      
   ];
-    
-  (* Second, numerator is divided by denominator *)
-    
+  
+<font color="red">  (* Second, numerator is divided by denominator *) </font>
   Prob = Numerator1/Binomial[M, NN];
-    
   Return[Prob];
-    
-    
 ];
-```
+
+</code></pre>
 
 ### pmfSamplingDistYiN example
-```
-(* Example Run and Output *)
+<pre><code><font color="red">
+(* Example Run and Output *)</font>
 pmfSamplingDistYiN[1000, 10, 0.1, 0.04, 1] // Timing
 {0.005244 Second, 0.250394}
-```
+
+</code></pre>
 
 ## AcceptanceRegion
 This program tests the null hypothesis $H_{o}:p_{i}=p_{i,0}, P_{ii}=P_{ii,0}$ for an observed value of $y_{i,N}$, $latex \hat{y}_{i,N}$, given the sampling scenario considered. It does this by calculating the acceptance region for a specified significance level, $latex \alpha$, and then determining whether $latex \hat{y}_{i,N}$ lies within this region. The outputs are bounds of the acceptance region and an indication of whether $latex \hat{y}_{i,N}$ falls within this region or not ('1' == TRUE, '0' == FALSE, respectively).
 
 
 ### AcceptanceRegion source code (_Mathematica_)
-```
-(* M is the population size;
-  
-  NN is the sample size;
-  
-  pi0 is a possible value for the frequency of allele Ai in the population;
-  
-  Pii0 is a possible value for the frequency of homozygotes with allele Ai in
-the population;
-  
-  yiNobs is the observed number of copies of allele Ai in the sample;
-  
-  alpha is the significance level *)
-AcceptanceRegion[M_, NN_, pi0_, Pii0_, yiNobs_, alpha_]:=
-  
+<pre><code><font color="red">
+(* M is the population size;  
+  NN is the sample size;  
+  pi0 is a possible value for the frequency of allele Ai in the population;  
+  Pii0 is a possible value for the frequency of homozygotes with allele Ai in the population;  
+  yiNobs is the observed number of copies of allele Ai in the sample;  
+  alpha is the significance level *)</font>
+AcceptanceRegion[M_, NN_, pi0_, Pii0_, yiNobs_, alpha_]:=  
 Module[{Sumprob, yiNlower, dummy1, Sumprob2, yiNupper, TestyiNobs, Output},
-    
-    
 
-  (* First, determine lower bound of acceptance region *)
-    
-  Sumprob = 0.0;
-    
-  yiNlower = 0;
-    
-  dummy1 = 0.0;
-    
-  While[Sumprob ≤ (alpha/2), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower]; 
+<font color="red">  (* First, determine lower bound of acceptance region *)</font>    
+  Sumprob = 0.0;    
+  yiNlower = 0;    
+  dummy1 = 0.0;    
+  While[Sumprob &le; (alpha/2), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower]; 
     Sumprob = Sumprob + dummy1; yiNlower = yiNlower + 1;];
-
- yiNlower = yiNlower - 1;
-    
-  dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower];
-    
+  yiNlower = yiNlower - 1;    
+  dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNlower];    
   Sumprob = Sumprob - dummy1;
-    
-    
-
-  (* Second, determine upper bound of acceptance region *)
-    
-  Sumprob2 = 1.0;
-    
-  yiNupper = 2*NN;
-    
-  While[Sumprob2 ≥ (1 - (alpha/2)), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper]; 
-    Sumprob2 = Sumprob2 - dummy1; yiNupper = yiNupper - 1;];
-    
-  yiNupper = yiNupper + 1;
-    
-  dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper];
-    
+  
+<font color="red">  (* Second, determine upper bound of acceptance region *)</font>    
+  Sumprob2 = 1.0;    
+  yiNupper = 2*NN;    
+  While[Sumprob2 &ge; (1 - (alpha/2)), dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper]; 
+    Sumprob2 = Sumprob2 - dummy1; yiNupper = yiNupper - 1;];    
+  yiNupper = yiNupper + 1;    
+  dummy1 = pmfSamplingDistYiN[M, NN, pi0, Pii0, yiNupper];    
   Sumprob2 = Sumprob2 + dummy1;
-    
-    
-    
-  (* Test if yiNobs is in acceptance region *)
-    
-  TestyiNobs = (yiNobs ≥ yiNlower) && (yiNobs ≤ yiNupper);
-    
-  Output = {yiNlower, yiNupper, TestyiNobs};
-    
-    
-
+  
+<font color="red">  (* Test if yiNobs is in acceptance region *)</font>    
+  TestyiNobs = (yiNobs &ge; yiNlower) && (yiNobs &le; yiNupper);    
+  Output = {yiNlower, yiNupper, TestyiNobs}; 
+  
   Return[Output];
-
-    
-    
+  
 ];
-```
+
+</code></pre>
 
 ### AcceptanceRegion example
-```
-(* Example Run and Outputs *)
+<pre><code>
+<font color="red">(* Example Run and Outputs *)</font>
 AcceptanceRegion[1000, 30, 0.625, 0.25, 50, 0.05] // Timing
 {0.089199 Second, {33, 42, False}}
-```
+
+</code></pre>
 
 ## CIforpiCasePiiUnknown
 This program calculates $latex \geq 100(1-\alpha) %$ confidence intervals (CI's) for $p_i$ and $P_{ii}$ given $M$, $N$ and $latex \hat{y}_{i,N}$. These CI's are computed using equation (14a) and (14b) in the main text, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper limits of the CI for $p_i$ followed by those of the CI for $P_{ii}$.
 
 ### CIforpiCasePiiUnknown source code (_Mathematica_)
-```
-(* M is the population size;
-  
-  NN is the sample size;
-  
-  yiNobs is the observed number of copies of allele Ai in the sample;
-  
-  alpha is the significance level *)
-CIforpiCasePiiUnknown[M_, NN_, yiNobs_, alpha_]:=
-  
-Module[{Output, pi0List, Pii0List, j, pi0, Pii0, k, Output1, Output2, piCIlowerlimit, piCIupperlimit,   
-  PiiCIlowerlimit, PiiCIupperlimit, largestalphaList, Outputcounter, alphaMax, alphaMaxIndex},
-    
-  
-     
-  Output = {};
-    
-  pi0List = {};
-    
+<pre><code><font color="red">
+(* M is the population size;  
+  NN is the sample size;  
+  yiNobs is the observed number of copies of allele Ai in the sample;  
+  alpha is the significance level *)</font>
+CIforpiCasePiiUnknown[M_, NN_, yiNobs_, alpha_]:=  
+Module[{Output, pi0List, Pii0List, j, pi0, Pii0, k, Output1, Output2, piCIlowerlimit, piCIupperlimit, 
+   PiiCIlowerlimit, PiiCIupperlimit, largestalphaList, Outputcounter, alphaMax, alphaMaxIndex},
+
+  Output = {};    
+  pi0List = {};    
   Pii0List = {};
-    
-    
-
-  (* Loop over all possible values of pi, denoted by pi0 *)
-    
-  For[j = 0, j ≤ (2*M), j++,
-      
-    pi0 = j/(2*M);
-      
-    (* Only go further if constraints on pi0 are met. *)
-      
-    If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
-
-     (* Loop over all possible values of Pii, denoted by Pii0 *)
-        
-      For[k = 0, k ≤ j, k++,
-          
-        Pii0 = k/(2*M);
-          
-        (* Only go further if constraints on Pii0 are met. *)
-          
-        If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0),
-            
-          (* For given pi0 and Pii0, test if yiNobs is in acceptance region;
-              
-            if so, append pi0 and Pii0 to pi0list 
-              and Pii0list respectively *)
-              
+  
+<font color="red">  (* Loop over all possible values of pi, denoted by pi0 *)</font>
+  For[j = 0, j &le; (2*M), j++,      
+    pi0 = j/(2*M);      
+<font color="red">    (* Only go further if constraints on pi0 are met. *)</font>      
+    If[(pi0 &ge; (yiNobs/(2*M))) && (pi0 &le; (1 - (((2*NN) - yiNobs)/(2*M)))),
+<font color="red">     (* Loop over all possible values of Pii, denoted by Pii0 *)</font>        
+      For[k = 0, k &le; j, k++,          
+        Pii0 = k/(2*M);          
+<font color="red">        (* Only go further if constraints on Pii0 are met. *)</font>          
+        If[(Pii0 &ge; Max[0, (2*pi0) - 1]) && (Pii0 &le; pi0),            
+<font color="red">          (* For given pi0 and Pii0, test if yiNobs is in acceptance region;              
+            if so, append pi0 and Pii0 to pi0list and Pii0list respectively *)</font>              
           Output1 = AcceptanceRegion[M, NN, pi0, Pii0, yiNobs, alpha];
-          If[Output1[[3]] == True, AppendTo[pi0List, pi0 //N]; AppendTo[Pii0List, Pii0 //N];];
-            
-          (* Regardless of whether yiNobs falls within acceptance region, pi0 and Pii0 are 
-          
-                    
-            appended to Output together with Output1 - this is used in below code if necessary *)
-            
-          Output2 = Join[{pi0 //N, Pii0 //N}, Output1];
-            
+          If[Output1[[3]] == True, AppendTo[pi0List, pi0 //N]; AppendTo[Pii0List, Pii0 //N];];            
+<font color="red">          (* Regardless of whether yiNobs falls within acceptance region, pi0 and Pii0 are 
+            appended to Output together with Output1 - this is used in below code if necessary *)</font>            
+          Output2 = Join[{pi0 //N, Pii0 //N}, Output1];            
           AppendTo[Output, Output2];
-
-       ];
-          
-      ];
-        
-    ];
-      
+       ];          
+      ];        
+    ];      
   ];
-    
-    
-
-  (* If there is at least one pair of pi0 and Pii0 for which yiNobs falls within corresponding
-        
-    acceptance region, then CI's for pi and Pii are defined according to equations (14a) and (14b) *)
-    
-  If[Length[pi0List] > 0, 
-      
-    piCIlowerlimit = Min[pi0List];
-      
-    piCIupperlimit = Max[pi0List];
-      
-    PiiCIlowerlimit = Min[Pii0List];
-      
-    PiiCIupperlimit = Max[Pii0List];
-      
+  
+<font color="red">  (* If there is at least one pair of pi0 and Pii0 for which yiNobs falls within corresponding        
+    acceptance region, then CI's for pi and Pii are defined according to equations (14a) and (14b) *)</font>    
+  If[Length[pi0List] > 0,       
+    piCIlowerlimit = Min[pi0List];      
+    piCIupperlimit = Max[pi0List];      
+    PiiCIlowerlimit = Min[Pii0List];      
+    PiiCIupperlimit = Max[Pii0List];      
   ];
-    
-    
-
-  (* If there are no pairs of pi0 and Pii0 for which yiNobs falls within corresponding acceptance 
-    region, then alpha is decreased until yiNobs falls within one acceptance region *)
-      
-  If[Length[pi0List] == 0, 
-      
-    (* Loop over all pi0 and Pii0 again and for each pair that meet the constraints, determine 
-      largest alpha value for which yiNobs falls within acceptance region *)
-      
-    (* largestalphaList is list of largest alpha's needed to cover yiNobs's. *)
-      
-    largestalphaList = {};
-      
-    Outputcounter = 1;
-      
-    For[j = 1, j ≤ (2*M), j++,
-      pi0 = j/(2*M);
-        
-      If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
-
-       For[k = 0, k ≤ j, k++,
-
-         Pii0 = k/(2*M);
-            
-          If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0),
-              
-            (* Calculate alpha value needed to cover yiNobs.
-           
-                                 
-              There are two subcases, yiNobs below and above acceptance region. *)
-              
-            If[yiNobs < Output[[Outputcounter, 3]],
-                
-              Sumprob = 0.0;
-                
-              For[m = 0, m ≤ (yiNobs - 1), m++,
-             
-                     
-                Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
-                    
-              ];
-                
+  
+<font color="red">  (* If there are no pairs of pi0 and Pii0 for which yiNobs falls within corresponding acceptance 
+    region, then alpha is decreased until yiNobs falls within one acceptance region *)</font>      
+  If[Length[pi0List] == 0,       
+<font color="red">    (* Loop over all pi0 and Pii0 again and for each pair that meet the constraints, determine 
+      largest alpha value for which yiNobs falls within acceptance region *)      
+    (* largestalphaList is list of largest alpha's needed to cover yiNobs's. *)</font>      
+    largestalphaList = {};      
+    Outputcounter = 1;      
+    For[j = 1, j &le; (2*M), j++,
+      pi0 = j/(2*M);        
+      If[(pi0 &ge; (yiNobs/(2*M))) && (pi0 &le; (1 - (((2*NN) - yiNobs)/(2*M)))),
+       For[k = 0, k &le; j, k++,
+         Pii0 = k/(2*M);            
+          If[(Pii0 &ge; Max[0, (2*pi0) - 1]) && (Pii0 &le; pi0),              
+<font color="red">            (* Calculate alpha value needed to cover yiNobs.       
+              There are two subcases, yiNobs below and above acceptance region. *)</font>              
+            If[yiNobs < Output[[Outputcounter, 3]],                
+              Sumprob = 0.0;                
+              For[m = 0, m &le; (yiNobs - 1), m++,            
+                Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];                    
+              ];                
               AppendTo[largestalphaList, Sumprob*2];
-
-           ];
-              
+           ];              
             If[yiNobs > Output[[Outputcounter, 4]],
-
-             Sumprob2 = 0.0;
-                
-              For[m = (2*NN), m ≥ (yiNobs + 1), m--,
-                Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
-                    
-              ];
-                
-              AppendTo[largestalphaList, Sumprob2*2];
-                
-            ];
-              
-            Outputcounter = Outputcounter + 1;
-              
-          ];
-            
-        ];
-          
-      ];
-        
-    ];
-      
-    (* From largestalphaList, find largest value, representing largest alpha for which yiNobs falls 
-      within an acceptance region, considering all possible values of pi and Pii *)
-      
-    alphaMax = -1;
-      
-    alphaMaxIndex = -1;
-      
-    For[j = 1, j ≤ Length[largestalphaList], j++,
-
-     If[largestalphaList[[j]] > alphaMax, alphaMax = largestalphaList[[j]]; alphaMaxIndex = j];
-          
-    ];
-      
-    (* Define lower and upper limits for pi and Pii given largest alpha *)
-      
-    piCIlowerlimit = Output[[alphaMaxIndex, 1]];
-      
-    piCIupperlimit = Output[[alphaMaxIndex, 1]];
-      
-    PiiCIlowerlimit = Output[[alphaMaxIndex, 2]];
-      
-    PiiCIupperlimit = Output[[alphaMaxIndex, 2]];
-      
+             Sumprob2 = 0.0;                
+              For[m = (2*NN), m &ge; (yiNobs + 1), m--,
+                Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];                    
+              ];                
+              AppendTo[largestalphaList, Sumprob2*2];                
+            ];              
+            Outputcounter = Outputcounter + 1;              
+          ];            
+        ];          
+      ];        
+    ];      
+<font color="red">    (* From largestalphaList, find largest value, representing largest alpha for which yiNobs falls 
+      within an acceptance region, considering all possible values of pi and Pii *)</font>      
+    alphaMax = -1;      
+    alphaMaxIndex = -1;      
+    For[j = 1, j &le; Length[largestalphaList], j++,
+     If[largestalphaList[[j]] > alphaMax, alphaMax = largestalphaList[[j]]; alphaMaxIndex = j];          
+    ];      
+<font color="red">    (* Define lower and upper limits for pi and Pii given largest alpha *)</font>      
+    piCIlowerlimit = Output[[alphaMaxIndex, 1]];      
+    piCIupperlimit = Output[[alphaMaxIndex, 1]];      
+    PiiCIlowerlimit = Output[[alphaMaxIndex, 2]];      
+    PiiCIupperlimit = Output[[alphaMaxIndex, 2]];      
   ];
-    
-    
-
+  
   Return[{{piCIlowerlimit, piCIupperlimit}, {PiiCIlowerlimit, PiiCIupperlimit}}];
-    
-    
 
 ];
-```
+
+</code></pre>
 
 ### CIforpiCasePiiUnknown example
-```
-(* Example Run and Outputs *)
+<pre><code>
+<font color="red">(* Example Run and Outputs *)</font>
 CIforpiCasePiiUnknown[100, 30, 5, 0.05] // Timing
 {268.678 Second, {{0.025, 0.2}, {0., 0.195}}}
-```
+
+</code></pre>
 
 ## CIforpiCasePiiKnown
 
-This program a $latex \geq 100(1-\alpha)% $ CI for $p_{i}$, given $M$, $N$ and
+This program calculates a $latex \geq 100(1-\alpha)% $ CI for $p_{i}$, given $M$, $N$ and
 $latex \hat{y}_{i,N}$, for a population with maximum homozygosity ($p_{i}=P_{ii}$). The program uses equation (13) in the main text to calculate the CI, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper bounds for the CI. The code of `CIforpiCasePiiKnown` can be easily adapted to calculate CI's under the scenario of HWE or the Scenario of minimum homozygosity, by altering two lines indicated within the code.
 
 ### CIforpiCasePiiKnown source code (_Mathematica_)
-```
-(* M is the population size;
-  
-  NN is the sample size;
-  
-  yiNobs is the observed number of copies of allele Ai in the sample;
-  
-  alpha is the significance level *)
-CIforpiCasePiiKnown[M_, NN_, yiNobs_, alpha_]:=
-  
+<pre><code>
+<font color="red">(* M is the population size;  
+  NN is the sample size;  
+  yiNobs is the observed number of copies of allele Ai in the sample;  
+  alpha is the significance level *)</font>
+CIforpiCasePiiKnown[M_, NN_, yiNobs_, alpha_]:=  
 Module[{Output, pi0List, j, pi0, Pii0, Output1, Output2, piCIlowerlimit, piCIupperlimit,   
   largestalphaList, Outputcounter, alphaMax, alphaMaxIndex},
-    
-    
-
-  Output = {};
-    
+  
+  Output = {};    
   pi0List = {};
-    
-    
-
-  For[j = 0, j ≤ (2*M), j++,
-    pi0 = j/(2*M);
-      
-    If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
-        
-      (* Max homozygosity case *)
-        
-      Pii0 = pi0;
-        
-      (* Replace with Pii0 = pi0^2 for HWE case *)
-        
-      (* Replace with Pii0 = Max[0, (2*pi0) - 1] for Min homozygosity case *)
-        
+  
+  For[j = 0, j &le; (2*M), j++,
+    pi0 = j/(2*M);      
+    If[(pi0 &ge; (yiNobs/(2*M))) && (pi0 &le; (1 - (((2*NN) - yiNobs)/(2*M)))),        
+<font color="red">      (* Max homozygosity case *)</font>        
+      Pii0 = pi0;        
+<font color="red">      (* Replace with Pii0 = pi0^2 for HWE case *)
+      (* Replace with Pii0 = Max[0, (2*pi0) - 1] for Min homozygosity case *)        
       (* Extra constraint for Pii0 to ensure that Pii0*M, the number of homozygotes in the population,
-        is an integer *)
-        
-      If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0) && (Head[Pii0*M] == Integer),
-          
-        Output1 = AcceptanceRegion[M, NN, pi0, Pii0, yiNobs, alpha];
-          
-        If[Output1[[3]] == True, AppendTo[pi0List, pi0 //N]];
-          
-        Output2 = Join[{pi0 //N, Pii0 //N}, Output1];
-          
-        AppendTo[Output, Output2];
-          
-          
-      ];
-        
-    ];
-      
-  ];
-    
-    
+        is an integer *)</font>        
+      If[(Pii0 &ge; Max[0, (2*pi0) - 1]) && (Pii0 &le; pi0) && (Head[Pii0*M] == Integer),          
+        Output1 = AcceptanceRegion[M, NN, pi0, Pii0, yiNobs, alpha];          
+        If[Output1[[3]] == True, AppendTo[pi0List, pi0 //N]];          
+        Output2 = Join[{pi0 //N, Pii0 //N}, Output1];          
+        AppendTo[Output, Output2];          
+      ];        
+    ];      
+  ];    
+  
+<font color="red">  (* If there is at least one pair of pi0 and Pii0 for which yiNobs falls within corresponding        
+    acceptance region, then CI's for pi and Pii are defined according to equation (13) *)</font>    
+  If[Length[pi0List] > 0,       
+    piCIlowerlimit = Min[pi0List];      
+    piCIupperlimit = Max[pi0List];      
+  ];  
 
-  (* If there is at least one pair of pi0 and Pii0 for which yiNobs falls within corresponding
-        
-    acceptance region, then CI's for pi and Pii are defined according to equation (13) *)
-    
-  If[Length[pi0List] > 0, 
-      
-    piCIlowerlimit = Min[pi0List];
-      
-    piCIupperlimit = Max[pi0List];
-      
+<font color="red">  (* If there are no pairs of pi0 and Pii0 for which yiNobs falls within corresponding acceptance 
+    region, then alpha is decreased until yiNobs falls within one acceptance region *)</font>    
+  If[Length[pi0List] == 0,       
+    largestalphaList = {};      
+    Outputcounter = 1;      
+    For[j = 1, j &le; (2*M), j++, 
+      pi0 = j/(2*M);        
+      If[(pi0 &ge; (yiNobs/(2*M))) && (pi0 &le; (1 - (((2*NN) - yiNobs)/(2*M)))),          
+<font color="red">        (* Max homozygosity case *)</font>          
+        Pii0 = pi0;          
+<font color="red">        (* Replace with Pii0 = pi0^2 for HWE case *)          
+        (* Replace with Pii0 = Max[0, (2*pi0) - 1] for Min homozygosity case *)</font>      
+        If[(Pii0 &ge; Max[0, (2*pi0) - 1]) && (Pii0 &le; pi0) && (Head[Pii0*M] == Integer),            
+          If[yiNobs < Output[[Outputcounter, 3]],              
+            Sumprob = 0.0;              
+            For[m = 0, m &le; (yiNobs - 1), m++, 
+              Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];                
+            ];              
+            AppendTo[largestalphaList, Sumprob*2];              
+          ];            
+          If[yiNobs > Output[[Outputcounter, 4]],              
+            Sumprob2 = 0.0;              
+            For[m = (2*NN), m &ge; (yiNobs + 1), m--,
+              Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];                       
+            ];              
+            AppendTo[largestalphaList, Sumprob2*2];              
+          ];            
+          Outputcounter = Outputcounter + 1;            
+        ];          
+      ];        
+    ];      
+<font color="red">    (* From largestalphaList, find largest value, representing largest alpha for which
+      yiNobs falls within an acceptance region, considering all possible values of pi and Pii *)</font>      
+    alphaMax = -1;      
+    alphaMaxIndex = -1;      
+    For[j = 1, j &le; Length[largestalphaList], j++,        
+      If[largestalphaList[[j]] > alphaMax, alphaMax = largestalphaList[[j]]; alphaMaxIndex = j];          
+    ];      
+<font color="red">    (* Define lower and upper limits for pi and Pii given largest alpha *)</font>      
+    piCIlowerlimit = Output[[alphaMaxIndex, 1]];      
+    piCIupperlimit = Output[[alphaMaxIndex, 1]];      
   ];
-    
-    
-
-  (* If there are no pairs of pi0 and Pii0 for which yiNobs falls within corresponding acceptance 
-    region, then alpha is decreased until yiNobs falls within one acceptance region *)
-    
-  If[Length[pi0List] == 0, 
-      
-    largestalphaList = {};
-      
-    Outputcounter = 1;
-      
-    For[j = 1, j ≤ (2*M), j++, 
-      pi0 = j/(2*M);
-        
-      If[(pi0 ≥ (yiNobs/(2*M))) && (pi0 ≤ (1 - (((2*NN) - yiNobs)/(2*M)))),
-          
-        (* Max homozygosity case *)
-          
-        Pii0 = pi0;
-          
-        (* Replace with Pii0 = pi0^2 for HWE case *)
-          
-        (* Replace with Pii0 = Max[0, (2*pi0) - 1] for Min homozygosity case *)
-          
-                     
-        If[(Pii0 ≥ Max[0, (2*pi0) - 1]) && (Pii0 ≤ pi0) && (Head[Pii0*M] == Integer),
-            
-          If[yiNobs < Output[[Outputcounter, 3]],
-              
-            Sumprob = 0.0;
-              
-            For[m = 0, m ≤ (yiNobs - 1), m++, 
-              Sumprob = Sumprob + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
-                
-            ];
-              
-            AppendTo[largestalphaList, Sumprob*2];
-              
-          ];
-            
-          If[yiNobs > Output[[Outputcounter, 4]],
-              
-            Sumprob2 = 0.0;
-              
-            For[m = (2*NN), m ≥ (yiNobs + 1), m--,
-              Sumprob2 = Sumprob2 + pmfSamplingDistYiN[M, NN, pi0[[j]], Pii0[[j]], m];
-                       
-            ];
-              
-            AppendTo[largestalphaList, Sumprob2*2];
-              
-          ];
-            
-          Outputcounter = Outputcounter + 1;
-            
-        ];
-          
-      ];
-        
-    ];
-      
-    (* From largestalphaList, find largest value, representing largest alpha for which
-          
-        
-      yiNobs falls within an acceptance region, considering all possible values of pi and Pii *)
-      
-    alphaMax = -1;
-      
-    alphaMaxIndex = -1;
-      
-    For[j = 1, j ≤ Length[largestalphaList], j++,
-        
-      If[largestalphaList[[j]] > alphaMax, alphaMax = largestalphaList[[j]]; alphaMaxIndex = j];
-          
-    ];
-      
-    (* Define lower and upper limits for pi and Pii given largest alpha *)
-      
-    piCIlowerlimit = Output[[alphaMaxIndex, 1]];
-      
-    piCIupperlimit = Output[[alphaMaxIndex, 1]];
-      
-  ];
-    
-    
-
-  Return[{piCIlowerlimit, piCIupperlimit}];
-    
-    
+  
+  Return[{piCIlowerlimit, piCIupperlimit}];   
 ];
-```
+
+</code></pre>
 
 ### CIforpiCasePiiKnown example
-```
-(* Example Run and Outputs *)
+<pre><code>
+<font color="red">(* Example Run and Outputs *)</font>
 CIforpiCasePiiKnown[438, 53, 1, 0.05/3] // Timing
 {8.96702 Second, {0.00228311, 0.0799087}}
-```
+
+</code></pre>
 
 ## Calculate $latex \geq$ 95% CI for Jost's $D$
 In this example, the $latex \geq$ 95% CI for Jost's $D$ is calculated for the butterfly example given in the main text. This code uses `CIforpiCasePiiKnown` to calculate the CI's for the population frequencies of each of the three alleles in each of the two populations. Then it uses these CI's to minimize and maximise Jost's $D$, which corresponds to the lower and upper bounds for its CI, respectively.
 
-```
-(* Find CI's for p1, p2 and p3, for Prasto population *)
+<pre><code>
+<font color="red">(* Find CI's for p1, p2 and p3, for Prasto population *)</font>
 CIforp1Prasto = CIforpiCasePiiKnown[2*219, 53, 1, 0.05/3];
 CIforp2Prasto = CIforpiCasePiiKnown[2*219, 53, 80, 0.05/3];
 CIforp3Prasto = CIforpiCasePiiKnown[2*219, 53, 24, 0.05/3];
-
-(* Find CI's for q1, q2 and q3, for Finstrom population *)
+<font color="red">(* Find CI's for q1, q2 and q3, for Finstrom population *)</font>
 CIforq1Finstrom = CIforpiCasePiiKnown[7*219, 74, 4, 0.05/3];
 CIforq2Finstrom = CIforpiCasePiiKnown[7*219, 74, 123, 0.05/3];
 CIforq3Finstrom = CIforpiCasePiiKnown[7*219, 74, 4, 0.05/3];
-
-(* Define Jost's D *)
+<font color="red">(* Define Jost's D *)</font>
 plist = {p1, p2, p3, 1 - p1 - p2 - p3};
 qlist = {q1, q2, q3, 1 - q1 - q2 - q3};
 JostS = (Sum[plist[[k]]*plist[[k]], {k, 1, 4}] + Sum[qlist[[k]]*qlist[[k]], {k, 1, 4}])/2;
 JostT = Sum[((plist[[k]] + qlist[[k]])/2)^2, {k, 1, 4}];
 JostD = ((JostT/JostS) - 1)/((1/2) - 1);
-
-(* Find lower bound of CI for Jost's D *)
-Minimize[JostD, (p1 > CIforp1Prasto[[1]]) && (p1 < CIforp1Prasto[[2]]) && (p2 > CIforp2Prasto[[1]]) 
-  && (p2 < CIforp2Prasto[[2]]) && (p3 > CIforp3Prasto[[1]]) && (p3 < CIforp3Prasto[[2]]) 
-  && (q1 > CIforq1Finstrom[[1]]) && (q1 < CIforq1Finstrom[[2]]) && (q2 > CIforq2Finstrom[[1]]) 
-  && (q2 < CIforq2Finstrom[[2]]) && (q3 > CIforq3Finstrom[[1]]) && (q3 < CIforq3Finstrom[[2]]) 
-  && (p1 + p2 + p3 ≤ 1) && (q1 + q2 + q3 ≤ 1), {p1, p2, p3, q1, q2, q3}]
-
-(* Find upper bound of CI for Jost's D *)
-Maximize[JostD, (p1 > CIforp1Prasto[[1]]) && (p1 < CIforp1Prasto[[2]]) && (p2 > CIforp2Prasto[[1]]) 
-  && (p2 < CIforp2Prasto[[2]]) && (p3 >
-CIforp3Prasto[[1]]) && (p3 < CIforp3Prasto[[2]]) 
-  && (q1 > CIforq1Finstrom[[1]]) && (q1 < CIforq1Finstrom[[2]]) && (q2 > CIforq2Finstrom[[1]]) 
-  && (q2 < CIforq2Finstrom[[2]]) && (q3 >
-CIforq3Finstrom[[1]]) && (q3 < CIforq3Finstrom[[2]]) 
-  && (p1 + p2 + p3 ≤ 1) && (q1 + q2 + q3 ≤ 1), {p1, p2, p3, q1, q2, q3}]
-```
+<font color="red">(* Find lower bound of CI for Jost's D *)</font>
+Minimize[JostD, (p1 &ge; CIforp1Prasto[[1]]) && (p1 &le; CIforp1Prasto[[2]]) && (p2 &ge; CIforp2Prasto[[1]]) 
+  && (p2 &le; CIforp2Prasto[[2]]) && (p3 &ge; CIforp3Prasto[[1]]) && (p3 &le; CIforp3Prasto[[2]]) 
+  && (q1 &ge; CIforq1Finstrom[[1]]) && (q1 &le; CIforq1Finstrom[[2]]) && (q2 &ge; CIforq2Finstrom[[1]]) 
+  && (q2 &le; CIforq2Finstrom[[2]]) && (q3 &ge; CIforq3Finstrom[[1]]) && (q3 &le; CIforq3Finstrom[[2]]) 
+  && (p1 + p2 + p3 &le; 1) && (q1 + q2 + q3 &le; 1), {p1, p2, p3, q1, q2, q3}]
+<font color="red">(* Find upper bound of CI for Jost's D *)</font>
+Maximize[JostD, (p1 &ge; CIforp1Prasto[[1]]) && (p1 &le; CIforp1Prasto[[2]]) && (p2 &ge; CIforp2Prasto[[1]]) 
+  && (p2 &le; CIforp2Prasto[[2]]) && (p3 &ge;
+CIforp3Prasto[[1]]) && (p3 &le; CIforp3Prasto[[2]]) 
+  && (q1 &ge; CIforq1Finstrom[[1]]) && (q1 &le; CIforq1Finstrom[[2]]) && (q2 &ge; CIforq2Finstrom[[1]]) 
+  && (q2 &le; CIforq2Finstrom[[2]]) && (q3 &ge;
+CIforq3Finstrom[[1]]) && (q3 &le; CIforq3Finstrom[[2]]) 
+  && (p1 + p2 + p3 &le; 1) && (q1 + q2 + q3 &le; 1), {p1, p2, p3, q1, q2, q3}]
+  
+</code></pre>
   
 ## Source code
 In the interest of reproducibility, all source code, both for the [`R`](http://rpubs.com/kkeenan02/Fung-Keenan-R) and the _Mathematica_ versions of this document can be freely accessed @ https://github.com/kkeenan02/Fung-Keenan2013.
+
+### References for supporting information S2
+  1. Wolfram Research Inc. (2003) Mathematica Edition: Version 5.0. Champaign, Illinois, USA, Wolfram Research Inc.

@@ -41,9 +41,9 @@ Wolfram Research.
 
 (*NotebookFileLineBreakTest
 NotebookFileLineBreakTest*)
-(*NotebookOptionsPosition[     41227,        802]*)
-(*NotebookOutlinePosition[     41863,        824]*)
-(*  CellTagsIndexPosition[     41819,        820]*)
+(*NotebookOptionsPosition[     41572,        805]*)
+(*NotebookOutlinePosition[     42208,        827]*)
+(*  CellTagsIndexPosition[     42164,        823]*)
 (*WindowFrame->Normal*)
 
 
@@ -741,12 +741,13 @@ Cell[BoxData[
             CIforpiCasePiiKnown[2*219, 53, 80, 0.05/3];\), 
         "\[IndentingNewLine]", \(CIforp3Prasto = 
             CIforpiCasePiiKnown[2*219, 53, 24, 0.05/3];\), 
-        StyleBox["\[IndentingNewLine]",
-          FontColor->RGBColor[1, 0, 0]], 
+        "\[IndentingNewLine]", 
         StyleBox[\( (*\ Find\ CI' s\ for\ q1, \ q2\ and\ q3, \ 
             for\ Finstrom\ population\ *) \),
           FontColor->RGBColor[1, 0, 0]], 
-        "\[IndentingNewLine]", \(CIforq1Finstrom = 
+        StyleBox["\[IndentingNewLine]",
+          FontColor->RGBColor[1, 0, 
+          0]], \(CIforq1Finstrom = 
             CIforpiCasePiiKnown[7*219, 74, 4, 0.05/3];\), 
         "\[IndentingNewLine]", \(CIforq2Finstrom = 
             CIforpiCasePiiKnown[7*219, 74, 123, 0.05/3];\), 
@@ -768,34 +769,36 @@ Cell[BoxData[
         StyleBox[\( (*\ Find\ lower\ bound\ of\ CI\ for\ Jost' s\ D\ *) \),
           FontColor->RGBColor[1, 0, 0]], 
         "\[IndentingNewLine]", \(Minimize[
-          JostD, \((p1 > CIforp1Prasto[\([1]\)])\) && \((p1 < 
-                CIforp1Prasto[\([2]\)])\) && \((p2 > 
-                CIforp2Prasto[\([1]\)])\) && \((p2 < 
-                CIforp2Prasto[\([2]\)])\) && \((p3 > 
-                CIforp3Prasto[\([1]\)])\) && \((p3 < 
-                CIforp3Prasto[\([2]\)])\) && \((q1 > 
-                CIforq1Finstrom[\([1]\)])\) && \((q1 < 
-                CIforq1Finstrom[\([2]\)])\) && \((q2 > 
-                CIforq2Finstrom[\([1]\)])\) && \((q2 < 
-                CIforq2Finstrom[\([2]\)])\) && \((q3 > 
-                CIforq3Finstrom[\([1]\)])\) && \((q3 < 
+          JostD, \((p1 \[GreaterEqual] 
+                CIforp1Prasto[\([1]\)])\) && \((p1 \[LessEqual] 
+                CIforp1Prasto[\([2]\)])\) && \((p2 \[GreaterEqual] 
+                CIforp2Prasto[\([1]\)])\) && \((p2 \[LessEqual] 
+                CIforp2Prasto[\([2]\)])\) && \((p3 \[GreaterEqual] 
+                CIforp3Prasto[\([1]\)])\) && \((p3 \[LessEqual] 
+                CIforp3Prasto[\([2]\)])\) && \((q1 \[GreaterEqual] 
+                CIforq1Finstrom[\([1]\)])\) && \((q1 \[LessEqual] 
+                CIforq1Finstrom[\([2]\)])\) && \((q2 \[GreaterEqual] 
+                CIforq2Finstrom[\([1]\)])\) && \((q2 \[LessEqual] 
+                CIforq2Finstrom[\([2]\)])\) && \((q3 \[GreaterEqual] 
+                CIforq3Finstrom[\([1]\)])\) && \((q3 \[LessEqual] 
                 CIforq3Finstrom[\([2]\)])\) && \((p1 + p2 + p3 \[LessEqual] 
                 1)\) && \((q1 + q2 + q3 \[LessEqual] 1)\), {p1, p2, p3, q1, 
             q2, q3}]\), "\[IndentingNewLine]", 
         StyleBox[\( (*\ Find\ upper\ bound\ of\ CI\ for\ Jost' s\ D\ *) \),
           FontColor->RGBColor[1, 0, 0]], 
         "\[IndentingNewLine]", \(Maximize[
-          JostD, \((p1 > CIforp1Prasto[\([1]\)])\) && \((p1 < 
-                CIforp1Prasto[\([2]\)])\) && \((p2 > 
-                CIforp2Prasto[\([1]\)])\) && \((p2 < 
-                CIforp2Prasto[\([2]\)])\) && \((p3 > 
-                CIforp3Prasto[\([1]\)])\) && \((p3 < 
-                CIforp3Prasto[\([2]\)])\) && \((q1 > 
-                CIforq1Finstrom[\([1]\)])\) && \((q1 < 
-                CIforq1Finstrom[\([2]\)])\) && \((q2 > 
-                CIforq2Finstrom[\([1]\)])\) && \((q2 < 
-                CIforq2Finstrom[\([2]\)])\) && \((q3 > 
-                CIforq3Finstrom[\([1]\)])\) && \((q3 < 
+          JostD, \((p1 \[GreaterEqual] 
+                CIforp1Prasto[\([1]\)])\) && \((p1 \[LessEqual] 
+                CIforp1Prasto[\([2]\)])\) && \((p2 \[GreaterEqual] 
+                CIforp2Prasto[\([1]\)])\) && \((p2 \[LessEqual] 
+                CIforp2Prasto[\([2]\)])\) && \((p3 \[GreaterEqual] 
+                CIforp3Prasto[\([1]\)])\) && \((p3 \[LessEqual] 
+                CIforp3Prasto[\([2]\)])\) && \((q1 \[GreaterEqual] 
+                CIforq1Finstrom[\([1]\)])\) && \((q1 \[LessEqual] 
+                CIforq1Finstrom[\([2]\)])\) && \((q2 \[GreaterEqual] 
+                CIforq2Finstrom[\([1]\)])\) && \((q2 \[LessEqual] 
+                CIforq2Finstrom[\([2]\)])\) && \((q3 \[GreaterEqual] 
+                CIforq3Finstrom[\([1]\)])\) && \((q3 \[LessEqual] 
                 CIforq3Finstrom[\([2]\)])\) && \((p1 + p2 + p3 \[LessEqual] 
                 1)\) && \((q1 + q2 + q3 \[LessEqual] 1)\), {p1, p2, p3, q1, 
             q2, q3}]\)}]}]], "Input"]
@@ -851,7 +854,7 @@ Cell[37011, 717, 276, 6, 43, "Input"],
 Cell[37290, 725, 117, 2, 27, "Output"]
 }, Open  ]],
 Cell[37422, 730, 52, 1, 43, "Input"],
-Cell[37477, 733, 3746, 67, 395, "Input"]
+Cell[37477, 733, 4091, 70, 379, "Input"]
 }
 ]
 *)
