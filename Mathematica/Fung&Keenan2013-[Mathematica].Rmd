@@ -40,7 +40,7 @@ options(digits = 6)
 
 ## Introduction
 This document describes the functionality of the _Mathematica_ code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1]. This document describes four separate programs named, `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiknown`.
-A `R` version of the code and examples can be found @ http://rpubs.com/kkeenan02/Fung-Keenan-R.
+A `R` version of the code and examples can be found <a href="http://rpubs.com/kkeenan02/Fung-Keenan-R/" target="_blank">here</a>
 
 ## pmfSamplingDistYiN
 This program returns $P(Y_{i,N} = y_{i,N})$ as specified by equation (9) in the main text, given $M$, $N$, $p_{i}$, $P_{ii}$ and $y_{i,n}$. Here, $Y_{i,N}$ is the random variable specifying the number of copies of allele $A_{i}$ in a sample of size $N$ taken from a finite diploid population of size $M$, with the frequency of allele $A_{i}$ in the population being $p_{i}$ and the frequency of homozygotes of allele $A_{i}$ in the population being $P_{ii}$.
@@ -387,7 +387,7 @@ CIforq3Finstrom[[1]]) && (q3 &le; CIforq3Finstrom[[2]])
 </code></pre>
   
 ## Source code
-In the interest of reproducibility, all source code, both for the [`R`](http://rpubs.com/kkeenan02/Fung-Keenan-R) and the _Mathematica_ versions of this document can be freely accessed @ https://github.com/kkeenan02/Fung-Keenan2013.
+In the interest of reproducibility, all source code, both for the <a href="http://rpubs.com/kkeenan02/Fung-Keenan-R/" target="_blank">`R`</a> and the _Mathematica_ versions of this document can be freely accessed on <a href="https://github.com/kkeenan02/Fung-Keenan2013/" target="_blank">github</a>.
 
 ### References for supporting information S2
   1. Wolfram Research Inc. (2003) Mathematica Edition: Version 5.0. Champaign, Illinois, USA, Wolfram Research Inc.

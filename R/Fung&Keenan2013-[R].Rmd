@@ -16,7 +16,7 @@ Tak Fung^1,2 and Kevin Keenan^3
 </h6>
 
 ## Introduction
-This document describes the functionality of the R code converted from the _Mathematica_ code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1] and subsequently converted and tested in `R`. This document describes four separate function named, `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiknown`. The original _Mathematica_ version of this workbook can be found @ http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica
+This document describes the functionality of the R code converted from the _Mathematica_ code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1] and subsequently converted and tested in `R`. This document describes four separate function named, `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiknown`. The original _Mathematica_ version of this workbook can be found <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">here</a>
 
 ## pmfSamplingDistYiN
 This function returns $P(Y_{i,N} = y_{i,N})$ as specified by equation (9) in the main text, given $M$, $N$, $p_{i}$, $P_{ii}$ and $y_{i,n}$. Here, $Y_{i,N}$ is the random variable specifying the number of copies of allele $A_{i}$ in a sample of size $N$ taken from a finite diploid population of size $M$, with the frequency of allele $A_{i}$ in the population being $p_{i}$ and the frequency of homozygotes of allele $A_{i}$ in the population being $P_{ii}$.
@@ -377,7 +377,7 @@ MaxJostD
 ```
 
 ## Source code
-In the interest of reproducibility, all source code, both for the [_Mathematica_](http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica) and the `R` versions of this document can be freely accessed @ https://github.com/kkeenan02/Fung-Keenan2013.
+In the interest of reproducibility, all source code, both for the <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">_Mathematica_</a> and the `R` versions of this document can be freely accessed at <a href="https://github.com/kkeenan02/Fung-Keenan2013/" target="_blank">github</a>.
 
 ## Reproducibility
 ```{r, echo=FALSE}
