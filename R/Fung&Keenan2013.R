@@ -1,6 +1,5 @@
-# This script contains all of the R code necessary to repeat the 
-# butterfly example from Fung & Keenan. Mathematica code is also
-# available @ https://github.com/kkeenan02/Fung-Keenan2013
+# This script contains all of the R code necessary to 
+# calculate CI's from Fung & Keenan (2013)."
 
 # Tak Fung & Kevin Keenan 2013
 

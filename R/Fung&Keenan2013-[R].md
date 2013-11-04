@@ -1,5 +1,5 @@
 <center>
-Fung & Keenan 2013: Description of R functions used to calculate  confidence intervals
+Supporting Information S2 for Fung & Keenan (2013): A Description of R functions used to calculate  confidence intervals
 ========================================================
 
 Tak Fung^1,2 and Kevin Keenan^3
@@ -16,7 +16,7 @@ Tak Fung^1,2 and Kevin Keenan^3
 </h6>
 
 ## Introduction
-This document describes the functionality of the R code converted from the _Mathematica_ code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1] and subsequently converted and tested in `R`. This document describes four separate function named, `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiknown`. The original _Mathematica_ version of this workbook can be found <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">here</a>
+This document describes the functionality of the R code converted from the _Mathematica_ code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1] and subsequently converted and tested in `R`. This document describes four separate functions named `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiKnown`. In addition, code is presented at the end to calculate a CI for Jost's D, for the butterfly example examined in the main text of Fung & Keenan (2013). The original _Mathematica_ version of this web document can be found <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">here</a>
 
 ## pmfSamplingDistYiN
 This function returns $P(Y_{i,N} = y_{i,N})$ as specified by equation (9) in the main text, given $M$, $N$, $p_{i}$, $P_{ii}$ and $y_{i,n}$. Here, $Y_{i,N}$ is the random variable specifying the number of copies of allele $A_{i}$ in a sample of size $N$ taken from a finite diploid population of size $M$, with the frequency of allele $A_{i}$ in the population being $p_{i}$ and the frequency of homozygotes of allele $A_{i}$ in the population being $P_{ii}$.
@@ -121,7 +121,7 @@ system.time(res <- AcceptanceRegion(1000, 30, 0.625, 0.25, 50, 0.05))
 
 ```
    user  system elapsed 
-   0.02    0.00    0.02 
+      0       0       0 
 ```
 
 ```r
@@ -136,7 +136,7 @@ lowerbound upperbound     result
 
 
 ## CIforpiCasePiiUnknown
-This function calculates $latex \geq 100(1-\alpha) %$ confidence intervals (CI's) for $p_i$ and $P_{ii}$ given $M$, $N$ and $latex \hat{y}_{i,N}$. These CI's are computed using equation (14a) and (14b) in the main text, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper limits of the CI for $p_i$ followed by those of the CI for $P_{ii}$.
+This function calculates $latex \geq 100(1-\alpha)$ % confidence intervals (CI's) for $p_i$ and $P_{ii}$ given $M$, $N$ and $latex \hat{y}_{i,N}$. These CI's are computed using equations (14a) and (14b) in the main text, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper limits of the CI for $p_i$ followed by those of the CI for $P_{ii}$.
 
 ### CIforpiCasePiiUnknown source code (`R`)
 
@@ -258,8 +258,7 @@ $PiiCI
 
 ## CIforpiCasePiiKnown
 
-This function a $latex \geq 100(1-\alpha)% $ CI for $p_{i}$, given $M$, $N$ and
-$latex \hat{y}_{i,N}$, for a population with maximum homozygosity ($p_{i}=P_{ii}$). The function uses equation (13) in the main text to calculate the CI, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper bounds for the CI. The code of `CIforpiCasePiiKnown` can be easily adapted to calculate CI's under the scenario of HWE or the Scenario of minimum homozygosity, by altering two lines indicated within the code.
+This function calculates a $latex \geq 100(1-\alpha)$ % CI for $p_{i}$, given $M$, $N$ and $latex \hat{y}_{i,N}$, for a population with maximum homozygosity ($p_{i}=P_{ii}$). The function uses equation (13) in the main text to calculate the CI, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper bounds for the CI. The code of `CIforpiCasePiiKnown` can be easily adapted to calculate CI's under the scenario of HWE or the Scenario of minimum homozygosity, by altering two lines indicated within the code.
 
 ### CIforpiCasePiiKnown source code (`R`)
 
@@ -376,7 +375,7 @@ print(res)
 
 
 ## Calculate $latex \geq$ 95% CI for Jost's $D$
-In this example, the $latex \geq$ 95% CI for Jost's $D$ is calculated for the butterfly example given in the main text. This code uses `CIforpiCasePiiKnown` to calculate the CI's for the population frequencies of each of the three alleles in each of the two populations. Then it uses these CI's to minimize and maximise Jost's $D$, which corresponds to the lower and upper bounds for its CI, respectively.
+In this example, the $latex \geq$ 95% CI for Jost's $D$ is calculated for the butterfly example given in the main text. This code uses `CIforpiCasePiiKnown` to calculate the CI's for the population frequencies of each of the three alleles in each of the two populations. Then it uses these CI's to minimize and maximize Jost's $D$, which corresponds to the lower and upper bounds for its CI, respectively.
 
 
 ```r
@@ -478,6 +477,9 @@ MaxJostD
 
 ## Source code
 In the interest of reproducibility, all source code, both for the <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">_Mathematica_</a> and the `R` versions of this document can be freely accessed at <a href="https://github.com/kkeenan02/Fung-Keenan2013/" target="_blank">github</a>.
+
+### References for Supporting Information S2
+  1. Wolfram Research Inc. (2003) Mathematica Edition: Version 5.0. Champaign, Illinois, USA, Wolfram Research Inc.
 
 ## Reproducibility
 
