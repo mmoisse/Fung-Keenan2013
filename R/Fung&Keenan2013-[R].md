@@ -16,7 +16,7 @@ Tak Fung^1,2 and Kevin Keenan^3
 </h6>
 
 ## Introduction
-This document describes the functionality of the R code converted from the _Mathematica_ code used in Fung & Keenan 2013. The code was written and tested using _Mathematica_ v5.0[1] and subsequently converted and tested in `R`. This document describes four separate functions named `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiKnown`. In addition, code is presented at the end to calculate a CI for Jost's D, for the butterfly example examined in the main text of Fung & Keenan (2013). The original _Mathematica_ version of this web document can be found <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">here</a>
+This document describes the functionality of the `R` code converted from the _Mathematica_ code used in Fung & Keenan (2013). The code was written and tested using _Mathematica_ v5.0[1] and subsequently converted and tested in `R`. This document describes four separate functions named `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiKnown`. In addition, code is presented at the end to calculate a CI for Jost's $D$, for the butterfly example examined in the main text of Fung & Keenan (2013). The original _Mathematica_ version of this web document can be found <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">here</a>
 
 ## pmfSamplingDistYiN
 This function returns $P(Y_{i,N} = y_{i,N})$ as specified by equation (9) in the main text, given $M$, $N$, $p_{i}$, $P_{ii}$ and $y_{i,n}$. Here, $Y_{i,N}$ is the random variable specifying the number of copies of allele $A_{i}$ in a sample of size $N$ taken from a finite diploid population of size $M$, with the frequency of allele $A_{i}$ in the population being $p_{i}$ and the frequency of homozygotes of allele $A_{i}$ in the population being $P_{ii}$.
@@ -121,7 +121,7 @@ system.time(res <- AcceptanceRegion(1000, 30, 0.625, 0.25, 50, 0.05))
 
 ```
    user  system elapsed 
-      0       0       0 
+   0.01    0.00    0.02 
 ```
 
 ```r
@@ -239,7 +239,7 @@ system.time(res <- CIforpiCasePiiUnknown(100, 30, 5, 0.05))
 
 ```
    user  system elapsed 
-  57.00    0.04   58.32 
+  55.79    0.00   56.79 
 ```
 
 ```r
@@ -360,7 +360,7 @@ system.time({res <- CIforpiCasePiiKnown(438, 53, 1, 0.05/3)})
 
 ```
    user  system elapsed 
-   1.96    0.00    1.98 
+   2.08    0.00    2.10 
 ```
 
 ```r
