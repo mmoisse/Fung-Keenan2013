@@ -1,5 +1,5 @@
 <center>
-Supporting Information S2 for Fung & Keenan (2013): A Description of R functions used to calculate  confidence intervals
+Supporting Webpage 2 for Fung & Keenan (2013): A Description of R functions used to calculate  confidence intervals
 ========================================================
 
 Tak Fung^1,2 and Kevin Keenan^3
@@ -121,7 +121,7 @@ system.time(res <- AcceptanceRegion(1000, 30, 0.625, 0.25, 50, 0.05))
 
 ```
    user  system elapsed 
-   0.01    0.00    0.02 
+      0       0       0 
 ```
 
 ```r
@@ -239,7 +239,7 @@ system.time(res <- CIforpiCasePiiUnknown(100, 30, 5, 0.05))
 
 ```
    user  system elapsed 
-  55.79    0.00   56.79 
+  58.32    0.02   59.61 
 ```
 
 ```r
@@ -360,7 +360,7 @@ system.time({res <- CIforpiCasePiiKnown(438, 53, 1, 0.05/3)})
 
 ```
    user  system elapsed 
-   2.08    0.00    2.10 
+   1.95    0.00    2.01 
 ```
 
 ```r
@@ -478,8 +478,10 @@ MaxJostD
 ## Source code
 In the interest of reproducibility, all source code, both for the <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">_Mathematica_</a> and the `R` versions of this document can be freely accessed at <a href="https://github.com/kkeenan02/Fung-Keenan2013/" target="_blank">github</a>.
 
-### References for Supporting Information S2
+### References for Supporting Webpage 2
   1. Wolfram Research Inc. (2003) Mathematica Edition: Version 5.0. Champaign, Illinois, USA, Wolfram Research Inc.
+  
+  2. R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL: http://www.R-project.org/.
 
 ## Reproducibility
 
@@ -488,13 +490,14 @@ R version 3.0.2 (2013-09-25)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 
 attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
 
 other attached packages:
-[1] knitr_1.4.1
+[1] Rsolnp_1.14     truncnorm_1.0-6 knitr_1.5      
 
 loaded via a namespace (and not attached):
-[1] digest_0.6.3   evaluate_0.4.7 formatR_0.9    stringr_0.6.2 
-[5] tools_3.0.2   
+[1] codetools_0.2-8 digest_0.6.3    evaluate_0.5.1  formatR_0.10   
+[5] stringr_0.6.2   tools_3.0.2    
 ```
 

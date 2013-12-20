@@ -13,7 +13,7 @@ pre code {
 </style>
 
 <center>
-Supporting Information S2 for Fung & Keenan (2013): A Description of _Mathematica_ programs used to calculate  confidence intervals
+Supporting Webpage 1 for Fung & Keenan (2013): A Description of _Mathematica_ programs used to calculate  confidence intervals
 ========================================================
 
 Tak Fung^1,2 and Kevin Keenan^3
@@ -388,5 +388,7 @@ CIforq3Finstrom[[1]]) && (q3 &le; CIforq3Finstrom[[2]])
 ## Source code
 In the interest of reproducibility, all source code, both for the <a href="http://rpubs.com/kkeenan02/Fung-Keenan-R/" target="_blank">`R`</a> and the _Mathematica_ versions of this document can be freely accessed on <a href="https://github.com/kkeenan02/Fung-Keenan2013/" target="_blank">github</a>.
 
-### References for Supporting Information S2
+### References for Supporting Webpage 1
   1. Wolfram Research Inc. (2003) Mathematica Edition: Version 5.0. Champaign, Illinois, USA, Wolfram Research Inc.
+  
+  2. R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL: http://www.R-project.org/.
