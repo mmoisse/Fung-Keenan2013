@@ -1,5 +1,5 @@
 <center>
-Supporting Webpage 2 for Fung & Keenan (2013): A Description of R functions used to calculate  confidence intervals
+Supporting Webpage 2 for Fung & Keenan (2014): A Description of R functions used to calculate  confidence intervals
 ========================================================
 
 Tak Fung^1,2 and Kevin Keenan^3
@@ -16,7 +16,7 @@ Tak Fung^1,2 and Kevin Keenan^3
 </h6>
 
 ## Introduction
-This document describes the functionality of the `R` code converted from the _Mathematica_ code used in Fung & Keenan (2013). The code was written and tested using _Mathematica_ v5.0[1] and subsequently converted and tested in `R`. This document describes four separate functions named `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiKnown`. In addition, code is presented at the end to calculate a CI for Jost's $D$, for the butterfly example examined in the main text of Fung & Keenan (2013). The original _Mathematica_ version of this web document can be found <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">here</a>
+This document describes the functionality of the `R` code converted from the _Mathematica_ code used in [Fung & Keenan (2014)](http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0085925). The code was written and tested using _Mathematica_ v5.0[1] and subsequently converted and tested in `R`. This document describes four separate functions named `pmfSamplingDistYiN`, `AcceptanceRegion`, `CIforpiCasePiiUnknown` and `CIforpiCasePiiKnown`. In addition, code is presented at the end to calculate a CI for Jost's $D$, for the butterfly example examined in the main text of Fung & Keenan (2014). The original _Mathematica_ version of this web document can be found <a href="http://rpubs.com/kkeenan02/Fung-Keenan-Mathematica/" target="_blank">here</a>
 
 ## pmfSamplingDistYiN
 This function returns $P(Y_{i,N} = y_{i,N})$ as specified by equation (9) in the main text, given $M$, $N$, $p_{i}$, $P_{ii}$ and $y_{i,n}$. Here, $Y_{i,N}$ is the random variable specifying the number of copies of allele $A_{i}$ in a sample of size $N$ taken from a finite diploid population of size $M$, with the frequency of allele $A_{i}$ in the population being $p_{i}$ and the frequency of homozygotes of allele $A_{i}$ in the population being $P_{ii}$.
@@ -121,7 +121,7 @@ system.time(res <- AcceptanceRegion(1000, 30, 0.625, 0.25, 50, 0.05))
 
 ```
    user  system elapsed 
-      0       0       0 
+   0.02    0.00    0.01 
 ```
 
 ```r
@@ -405,8 +405,14 @@ JostDMinus=function(x){
   -JostD(x)
 }
 
-# load Rsolnp package for optimization
-library(Rsolnp)
+# Check if the packages 'Rsolnp' needs to be installed before loading it. 
+# Rsolnp is used for the optimisation step.
+if("Rsolnp" %in% rownames(installed.packages()) == FALSE){ 
+  install.packages("Rsolnp", repo = "http://cran.rstudio.com",
+                   dep = TRUE)
+}
+library("Rsolnp")
+
 
 # define inequalities
 ineqfun1 <- function(freq){
@@ -482,11 +488,17 @@ In the interest of reproducibility, all source code, both for the <a href="http:
   1. Wolfram Research Inc. (2003) Mathematica Edition: Version 5.0. Champaign, Illinois, USA, Wolfram Research Inc.
   
   2. R Core Team (2013). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL: http://www.R-project.org/.
+  
+  3. Alexios Ghalanos and Stefan Theussl (2012). Rsolnp: General
+Non-linear Optimization Using Augmented Lagrange Multiplier Method.
+R package version 1.14.
+  
+  4. Fung T, Keenan K (2014) Confidence Intervals for Population Allele Frequencies: The General Case of Sampling from a Finite Diploid Population of Any Size. PLoS ONE 9(1): e85925. doi:10.1371/journal.pone.0085925
 
 ## Reproducibility
 
 ```
-R version 3.0.2 (2013-09-25)
+R Under development (unstable) (2014-01-19 r64835)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 
 attached base packages:
@@ -494,10 +506,10 @@ attached base packages:
 [8] base     
 
 other attached packages:
-[1] Rsolnp_1.14     truncnorm_1.0-6 knitr_1.5      
+[1] Rsolnp_1.14     truncnorm_1.0-6 knitr_1.5.1    
 
 loaded via a namespace (and not attached):
-[1] codetools_0.2-8 digest_0.6.3    evaluate_0.5.1  formatR_0.10   
-[5] stringr_0.6.2   tools_3.0.2    
+[1] codetools_0.2-8 digest_0.6.4    evaluate_0.5.1  formatR_0.10   
+[5] stringr_0.6.2   tools_3.1.0    
 ```
 
