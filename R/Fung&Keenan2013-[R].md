@@ -121,7 +121,7 @@ system.time(res <- AcceptanceRegion(1000, 30, 0.625, 0.25, 50, 0.05))
 
 ```
    user  system elapsed 
-   0.02    0.00    0.01 
+   0.02    0.00    0.02 
 ```
 
 ```r
@@ -502,14 +502,13 @@ R Under development (unstable) (2014-01-19 r64835)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 
 attached base packages:
-[1] parallel  stats     graphics  grDevices utils     datasets  methods  
-[8] base     
+[1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] Rsolnp_1.14     truncnorm_1.0-6 knitr_1.5.1    
+[1] knitr_1.5.1
 
 loaded via a namespace (and not attached):
-[1] codetools_0.2-8 digest_0.6.4    evaluate_0.5.1  formatR_0.10   
-[5] stringr_0.6.2   tools_3.1.0    
+[1] digest_0.6.4   evaluate_0.5.1 formatR_0.10   stringr_0.6.2 
+[5] tools_3.1.0   
 ```
 
