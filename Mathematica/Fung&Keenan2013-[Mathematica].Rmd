@@ -12,11 +12,11 @@ pre code {
 }
 </style>
 
-<center>
+
 Supporting Webpage 1 for Fung & Keenan (2014): A Description of _Mathematica_ programs used to calculate  confidence intervals
 ========================================================
 
-Tak Fung^1,2 and Kevin Keenan^3
+Tak Fung<sup>1,2</sup> and Kevin Keenan<sup>3</sup>
 ----------------------------------------------------
 
 <h6>
@@ -26,10 +26,11 @@ Tak Fung^1,2 and Kevin Keenan^3
 
 <sup>3</sup> Queen’s University Belfast, Institute for Global Food Security, School of Biological Sciences, Belfast BT9 7BL, UK
 
-</center>
+
 </h6>
 
 ```{r, echo=FALSE}
+library(knitr)
 opts_chunk$set(comment = "",
                tidy = FALSE,
                use.highlight = TRUE)
@@ -88,7 +89,7 @@ pmfSamplingDistYiN[1000, 10, 0.1, 0.04, 1] // Timing
 </code></pre>
 
 ## AcceptanceRegion
-This program tests the null hypothesis $H_{o}:p_{i}=p_{i,0}, P_{ii}=P_{ii,0}$ for an observed value of $y_{i,N}$, $latex \hat{y}_{i,N}$, given the sampling scenario considered. It does this by calculating the acceptance region for a specified significance level, $latex \alpha$, and then determining whether $latex \hat{y}_{i,N}$ lies within this region. The outputs are bounds of the acceptance region and an indication of whether $latex \hat{y}_{i,N}$ falls within this region or not (TRUE or FALSE).
+This program tests the null hypothesis $H_{o}:p_{i}=p_{i,0}, P_{ii}=P_{ii,0}$ for an observed value of $y_{i,N}$, $\hat{y}_{i,N}$, given the sampling scenario considered. It does this by calculating the acceptance region for a specified significance level, $\alpha$, and then determining whether $\hat{y}_{i,N}$ lies within this region. The outputs are bounds of the acceptance region and an indication of whether $\hat{y}_{i,N}$ falls within this region or not (TRUE or FALSE).
 
 
 ### AcceptanceRegion source code (_Mathematica_)
@@ -140,7 +141,7 @@ AcceptanceRegion[1000, 30, 0.625, 0.25, 50, 0.05] // Timing
 </code></pre>
 
 ## CIforpiCasePiiUnknown
-This program calculates $latex \geq 100(1-\alpha) $ % confidence intervals (CI's) for $p_i$ and $P_{ii}$ given $M$, $N$ and $latex \hat{y}_{i,N}$. These CI's are computed using equations (14a) and (14b) in the main text, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper limits of the CI for $p_i$ followed by those of the CI for $P_{ii}$.
+This program calculates $\geq 100(1-\alpha)$ % confidence intervals (CI's) for $p_i$ and $P_{ii}$ given $M$, $N$ and $\hat{y}_{i,N}$. These CI's are computed using equations (14a) and (14b) in the main text, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper limits of the CI for $p_i$ followed by those of the CI for $P_{ii}$.
 
 ### CIforpiCasePiiUnknown source code (_Mathematica_)
 <pre><code><font color="red">
@@ -253,8 +254,8 @@ CIforpiCasePiiUnknown[100, 30, 5, 0.05] // Timing
 
 ## CIforpiCasePiiKnown
 
-This program calculates a $latex \geq 100(1-\alpha)$ % CI for $p_{i}$, given $M$, $N$ and
-$latex \hat{y}_{i,N}$, for a population with maximum homozygosity ($p_{i}=P_{ii}$). The program uses equation (13) in the main text to calculate the CI, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper bounds for the CI. The code of `CIforpiCasePiiKnown` can be easily adapted to calculate CI's under the scenario of HWE or the Scenario of minimum homozygosity, by altering two lines indicated within the code.
+This program calculates a $\geq 100(1-\alpha)$ % CI for $p_{i}$, given $M$, $N$ and
+$\hat{y}_{i,N}$, for a population with maximum homozygosity ($p_{i}=P_{ii}$). The program uses equation (13) in the main text to calculate the CI, and uses `pmfSamplingDistYiN` and `AcceptanceRegion`. The outputs are the lower and upper bounds for the CI. The code of `CIforpiCasePiiKnown` can be easily adapted to calculate CI's under the scenario of HWE or the Scenario of minimum homozygosity, by altering two lines indicated within the code.
 
 ### CIforpiCasePiiKnown source code (_Mathematica_)
 <pre><code>
@@ -350,8 +351,8 @@ CIforpiCasePiiKnown[438, 53, 1, 0.05/3] // Timing
 
 </code></pre>
 
-## Calculate $latex \geq$ 95% CI for Jost's $D$
-In this example, the $latex \geq$ 95% CI for Jost's $D$ is calculated for the butterfly example given in the main text. This code uses `CIforpiCasePiiKnown` to calculate the CI's for the population frequencies of each of the three alleles in each of the two populations. Then it uses these CI's to minimize and maximize Jost's $D$, which corresponds to the lower and upper bounds for its CI, respectively.
+## Calculate $\geq$ 95% CI for Jost's $D$
+In this example, the $\geq$ 95% CI for Jost's $D$ is calculated for the butterfly example given in the main text. This code uses `CIforpiCasePiiKnown` to calculate the CI's for the population frequencies of each of the three alleles in each of the two populations. Then it uses these CI's to minimize and maximize Jost's $D$, which corresponds to the lower and upper bounds for its CI, respectively.
 
 <pre><code>
 <font color="red">(* Find CI's for p1, p2 and p3, for Prasto population *)</font>
