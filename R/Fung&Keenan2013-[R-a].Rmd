@@ -1,8 +1,14 @@
-<center>
-Supporting Webpage 2a for Fung & Keenan (2014): A Description of an amended version of the function `pmfSamplingDistYiN`, allowing the use of big integers
+---
+output: html_document
+---
+
+
+Supporting Webpage 2a for Fung & Keenan (2014): A Description of an amended version of the function pmfSamplingDistYiN, allowing the use of big integers
 ========================================================
 
-Tak Fung^1,2 and Kevin Keenan^3
+<br>
+
+Tak Fung<sup>1,2</sup> and Kevin Keenan<sup>3</sup>
 ----------------------------------------------------
 
 <h6>
@@ -12,22 +18,25 @@ Tak Fung^1,2 and Kevin Keenan^3
 
 <sup>3</sup> Queen’s University Belfast, Institute for Global Food Security, School of Biological Sciences, Belfast BT9 7BL, UK
 
-</center>
+
 </h6>
 
 ```{r, echo=FALSE}
+library(knitr)
 opts_chunk$set(comment = "",
                tidy = FALSE)
 options(digits = 6)
 ```
 
-## Introduction
-This document describes the functionality of an amended version of the `pmfSamplingDistYiN` function from [Fung & Keenan, (2014)](http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0085925), originally described [here](http://rpubs.com/kkeenan02/Fung-Keenan-R). The amended version, `pmfSamplingDistYiN_2` uses the package, [`gmp`](http://cran.stat.ucla.edu/web/packages/gmp/index.html), when calculating binomial coefficients to allow for the use of `bigz` integer variables, for which `choose` generally returns `Inf`.
+Background and code
+------------------------
+
+This document describes the functionality of an amended version of the `pmfSamplingDistYiN` function from [Fung & Keenan, (2014)](http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0085925), originally described [here](http://rpubs.com/kkeenan02/Fung-Keenan-R). The amended version, `pmfSamplingDistYiN_2` uses the package [`gmp`](http://cran.stat.ucla.edu/web/packages/gmp/index.html) when calculating binomial coefficients to allow for the use of `bigz` integer variables, for which `choose` generally returns `Inf`.
 
 This difference is demonstrated in the below code for the example:
-    $$latex \binom{5000}{600}$$
+    $$ \binom{5000}{600} $$
     
-In the original function, `pmfSamplingDistYiN_2`, this would be resolved as follows:    
+In the original function, `pmfSamplingDistYiN`, this would be resolved as follows:    
 ```{r binomexpl, cache=TRUE, comment=""}
 # use the base function, choose
 choose(5000, 600)
@@ -51,7 +60,7 @@ BinomCoeff <- function(nn,rr){
 
 # implement the function using bigz variables
 coef <- BinomCoeff(as.bigz(5000), as.bigz(600))
-# test that the output of BinomCoeff is numeric
+# test that the output of BinomCoeff can be converted to a numeric
 asNumeric(coef/coef)
 ```
 
@@ -59,7 +68,7 @@ From this simple test, we see that dividing the output from `BinomCoeff` by itse
 
 Now that we are able to calculate the binomial coefficient for very large expansion terms, we can incorporate the method into the new function, `pmfSamplingDistYiN_2`.
 
-#### `pmfSamplingDistYiN_2` source code (`R`)
+#### pmfSamplingDistYiN_2 source code (R)
 
 ```{r}
 # New version of pmfSamplingDistYiN that works for large integers
@@ -95,7 +104,7 @@ pmfSamplingDistYiN_2 <- function(M, NN, p_i, P_ii, yiN){
 }
 ```
 
-#### Testing `pmfSamplingDistYiN_2`
+#### Testing pmfSamplingDistYiN_2
 Below are a few simple tests to ensure that `pmfSamplingDistYiN_2` returns the same results as `pmfSamplingDistYiN` (for instances where `choose` can calculate the binomial coefficient).
 
 ```{r, echo=FALSE}
@@ -130,7 +139,7 @@ pmfSamplingDistYiN_2(1000, 50, 0.05, 0.02, 1)
 ```
 We can clearly see that both functions return identical results.
 
-We can also see compare how both function behave when large sample sizes (`NN`) are used.
+We can also see compare how both functions behave when large population sizes (`M`) and sample sizes (`NN`) are used.
 
 ```{r test2, cache=TRUE}
 # Check that pmfSamplingDistYiN_2 will work for large integers
