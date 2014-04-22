@@ -45,7 +45,7 @@ We can see that choose returns the value `Inf` (infinity) for this calculation. 
 
 To solve this limitation, we have implemented the use of `bigz` variables as defined in the `gmp` package. The new method for the calculation of binomial coefficients is as follows:
 
-```{r binomexpl2, cache=TRUE, warning=FALSE, comment=""}
+```{r binomexpl2, cache=TRUE, warning=FALSE, comment="", results='hide'}
 # load gmp package for large interger conversion
 library(gmp)
 
@@ -57,7 +57,8 @@ BinomCoeff <- function(nn,rr){
   # Recur
   return(BinomCoeff(nn-1, rr-1)*(nn/rr))
 }
-
+```
+```{r binomexpl3, cache=TRUE, warning=FALSE, comment=""}
 # implement the function using bigz variables
 coef <- BinomCoeff(as.bigz(5000), as.bigz(600))
 # test that the output of BinomCoeff can be converted to a numeric
@@ -137,9 +138,7 @@ pmfSamplingDistYiN_2(1000, 10, 0.1, 0.04, 1)
 pmfSamplingDistYiN(1000, 50, 0.05, 0.02, 1)
 pmfSamplingDistYiN_2(1000, 50, 0.05, 0.02, 1)
 ```
-We can clearly see that both functions return identical results.
-
-We can also see compare how both functions behave when large population sizes (`M`) and sample sizes (`NN`) are used.
+We can clearly see that both functions return identical results. We can also see compare how both functions behave when large population sizes (`M`) and sample sizes (`NN`) are used.
 
 ```{r test2, cache=TRUE}
 # Check that pmfSamplingDistYiN_2 will work for large integers
