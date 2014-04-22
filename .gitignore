@@ -10,3 +10,5 @@ Mathematica/*.Rmd
 */.Rprofile
 R/Rsolnp*
 *-src.nb
+*.docx
+*cache/
