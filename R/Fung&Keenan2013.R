@@ -2,8 +2,46 @@
 # calculate CI's from Fung & Keenan (2013)."
 
 # Tak Fung & Kevin Keenan 2013
+library("gmp")
+
+BinomCoeff <- function(nn,rr)
+{ 
+  if(rr<0){return(0)}
+  if(rr==0 || rr==nn){return(1)}
+  
+  # Recur
+  return(BinomCoeff(nn-1, rr-1)*(nn/rr))
+}
 
 pmfSamplingDistYiN <- function(M, NN, p_i, P_ii, yiN){
+   res <- pmfSamplingDistYiN_1(M, NN, p_i, P_ii, yiN)
+   if(is.na(res)) {
+      res <- pmfSamplingDistYiN_2(M, NN, p_i, P_ii, yiN)
+   }
+   return(res)
+}
+
+# New version of pmfSamplingDistYiN that works for large integers
+pmfSamplingDistYiN_2 <- function(M, NN, p_i, P_ii, yiN){
+  MaxFunc <- max((yiN/2) - (M*p_i) + (M*P_ii), yiN - NN, 0)
+  MinFunc <- min(M*P_ii, yiN/2, M-NN+yiN-(2*M*p_i)+(M*P_ii))
+  LowerBound <- ceiling(MaxFunc)
+  UpperBound <- floor(MinFunc)
+  
+  # Calculate P(YiN = yiN) according to eqn 9
+  Numerator1 <- 0
+
+  for(i in LowerBound:UpperBound){
+    Summand <- BinomCoeff(as.bigz(M*P_ii), as.bigz(i))*BinomCoeff(as.bigz(2*M*(p_i-P_ii)), as.bigz(yiN-(2*i)))*
+      BinomCoeff(as.bigz(M+(M*P_ii)-(2*M*p_i)), as.bigz(NN+i-yiN))
+    Numerator1 <- Numerator1 + Summand
+  }
+  
+  probOut <- Numerator1/BinomCoeff(as.bigz(M), as.bigz(NN))
+  return(asNumeric(probOut))
+}
+
+pmfSamplingDistYiN_1 <- function(M, NN, p_i, P_ii, yiN){
   MaxFunc <- max((yiN/2) - (M*p_i) + (M*P_ii), yiN - NN, 0)
   MinFunc <- min(M*P_ii, yiN/2, M-NN+yiN-(2*M*p_i)+(M*P_ii))
   LowerBound <- ceiling(MaxFunc)
